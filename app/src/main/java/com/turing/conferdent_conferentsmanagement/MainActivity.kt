@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation3.runtime.rememberNavBackStack
+import com.turing.conferdent_conferentsmanagement.ui.ConferdentApp
 import com.turing.conferdent_conferentsmanagement.ui.theme.ConferdentConferentsManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,8 +26,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             ConferdentConferentsManagementTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        modifier = Modifier.padding(innerPadding)
+
+
+
+                    ConferdentApp(
+                        modifier = Modifier.padding(innerPadding),
+                        backStack = rememberNavBackStack()
                     )
                 }
             }
