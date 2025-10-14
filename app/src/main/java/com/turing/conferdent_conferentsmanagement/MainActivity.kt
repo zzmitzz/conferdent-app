@@ -26,12 +26,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ConferdentConferentsManagementTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-
-
                     ConferdentApp(
                         modifier = Modifier.padding(innerPadding),
-                        backStack = rememberNavBackStack()
                     )
                 }
             }

@@ -10,6 +10,7 @@ import androidx.navigation3.ui.NavDisplay
 
 
 sealed class SafeNavKey: NavKey {
+    data object Auth : SafeNavKey()
     data class Home(val id: Int) : SafeNavKey()
     data class Settings(val id: Int) : SafeNavKey()
 }
@@ -17,14 +18,23 @@ sealed class SafeNavKey: NavKey {
 @Composable
 fun ConferdentApp(
     modifier: Modifier,
-    backStack: NavBackStack<NavKey>
 ){
+    val backStack = rememberNavBackStack(SafeNavKey.Auth)
     NavDisplay(
         modifier = modifier,
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider = { key ->
             when(key) {
+                is SafeNavKey.Auth -> {
+                    AuthScreen()
+                }
+                is SafeNavKey.Home -> {
+                    HomeScreen()
+                }
+                is SafeNavKey.Settings -> {
+                    SettingsScreen()
+                }
                 else -> {
                     error("Unknown route: $key")
                 }
