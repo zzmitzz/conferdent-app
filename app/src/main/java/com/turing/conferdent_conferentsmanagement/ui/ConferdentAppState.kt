@@ -4,24 +4,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
+import androidx.navigation.NavHostController
+import com.turing.conferdent_conferentsmanagement.navigation.TopLevelDestination
 import kotlinx.coroutines.CoroutineScope
-
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 
 @Composable
 fun rememberConferdentAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    backStack: NavBackStack<NavKey>
+    navController: NavHostController
 ): ConferdentAppState {
     return remember(
         coroutineScope,
-        backStack
+        navController
     ) {
         ConferdentAppState(
             coroutineScope = coroutineScope,
-            backStack = backStack
+            navController = navController
         )
     }
 }
@@ -29,7 +30,31 @@ fun rememberConferdentAppState(
 @Stable
 class ConferdentAppState(
     val coroutineScope: CoroutineScope,
-    val backStack: NavBackStack<NavKey>,
+    val navController: NavHostController,
 ) {
 
+    private var _isShownBottomNav = MutableStateFlow(false)
+    val isShownBottomNav = _isShownBottomNav.asStateFlow()
+
+    private var _currentTopLevelDestination = MutableStateFlow(TopLevelDestination.HOME)
+    val currentTopLevelDestination = _currentTopLevelDestination.asStateFlow()
+
+    fun navigateToTopLevelDestination(destination: TopLevelDestination) {
+        if (currentTopLevelDestination.value != destination) {
+            _currentTopLevelDestination.value = destination
+//            navController.navigate(destination.route) {
+//                popUpTo(navController.graph.id) {
+//                    inclusive = true
+//                }
+//            }
+        }
+    }
+
+    private fun checkIfConnected(): Boolean {
+        return true
+    }
+
+    fun setVisibleBottomNav(isVisible: Boolean) {
+        _isShownBottomNav.value = isVisible
+    }
 }

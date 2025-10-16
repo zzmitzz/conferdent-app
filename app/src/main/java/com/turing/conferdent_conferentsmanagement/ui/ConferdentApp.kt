@@ -1,44 +1,81 @@
 package com.turing.conferdent_conferentsmanagement.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.ui.NavDisplay
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.turing.conferdent_conferentsmanagement.navigation.BottomNavigationBar
+import com.turing.conferdent_conferentsmanagement.navigation.NavigationGraph
+import com.turing.conferdent_conferentsmanagement.ui.screen.auth.login.AuthScreenStateful
+import com.turing.conferdent_conferentsmanagement.ui.screen.auth.register.RegisterStateful
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.Serializable
 
 
-sealed class SafeNavKey: NavKey {
-    data object Auth : SafeNavKey()
-    data class Home(val id: Int) : SafeNavKey()
-    data class Settings(val id: Int) : SafeNavKey()
+@Preview
+@Composable
+private fun AppPreview() {
+
 }
+
 
 @Composable
 fun ConferdentApp(
+    navController: NavHostController,
+    appState: ConferdentAppState,
     modifier: Modifier,
-){
-    val backStack = rememberNavBackStack(SafeNavKey.Auth)
-    NavDisplay(
-        modifier = modifier,
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = { key ->
-            when(key) {
-                is SafeNavKey.Auth -> {
-                    AuthScreen()
-                }
-                is SafeNavKey.Home -> {
-                    HomeScreen()
-                }
-                is SafeNavKey.Settings -> {
-                    SettingsScreen()
-                }
-                else -> {
-                    error("Unknown route: $key")
+) {
+
+    val isShowBottomNav = appState.isShownBottomNav.collectAsStateWithLifecycle()
+    val currDestination = appState.currentTopLevelDestination.collectAsStateWithLifecycle()
+
+    return Box(
+        modifier = modifier
+    ) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            // Create references for the composable to constrain
+            val (nav, bottomBar) = createRefs()
+
+            // NavigationGraph
+            Box(
+                modifier = Modifier
+                    .constrainAs(nav) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(if (isShowBottomNav.value) bottomBar.top else parent.bottom)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }
+            ) {
+                NavigationGraph(navController = navController, appState = appState)
+            }
+
+            // BottomNavigationBar (conditionally shown)
+            if (isShowBottomNav.value) {
+                Box(
+                    modifier = Modifier
+                        .constrainAs(bottomBar) {
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                        }
+                ) {
+                    BottomNavigationBar(
+                        onTopLevelClick = {
+                            appState.navigateToTopLevelDestination(it)
+                        },
+                        currentDestination = currDestination.value
+                    )
                 }
             }
         }
-    )
+    }
 }
