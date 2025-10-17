@@ -67,17 +67,17 @@ sealed class Routes(
     }
 
     // HOME
-    data object Home : Routes("home"){
-        fun createRoute() = "home"
+    data object Home : Routes("home_screen"){
+        fun createRoute() = "home_screen"
     }
 
-    data object Favourite : Routes("favourite"){
-        fun createRoute() = "favourite"
+    data object Favourite : Routes("favourite_screen"){
+        fun createRoute() = "favourite_screen"
     }
-    data object Notification : Routes("notification"){
-        fun createRoute() = "notification"
+    data object Notification : Routes("notification_screen"){
+        fun createRoute() = "notification_screen"
     }
-    data object Setting : Routes("setting"){
-        fun createRoute() = "setting"
+    data object Setting : Routes("setting_screen"){
+        fun createRoute() = "setting_screen"
     }
 }

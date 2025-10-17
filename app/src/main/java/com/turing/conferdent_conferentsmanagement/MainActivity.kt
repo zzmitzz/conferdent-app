@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     ConferdentApp(
                         navController = navController,
                         appState = appState,
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier,
                     )
                 }
             }

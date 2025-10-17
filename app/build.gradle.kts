@@ -64,5 +64,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation( libs.androidx.navigation.compose)
     implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
+    implementation("androidx.compose.animation:animation:1.9.3") // compose animation
+    implementation("androidx.compose.animation:animation-core:1.9.3")
+    implementation("androidx.compose.animation:animation-graphics:1.9.3")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
 
 }

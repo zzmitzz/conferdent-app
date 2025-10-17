@@ -21,11 +21,11 @@ fun NavigationGraph(
     NavHost(
         navController = navController,
         startDestination = "auth"
-    ){
+    ) {
         navigation(
             startDestination = Routes.Login.route,
             route = "auth"
-        ){
+        ) {
             composable(
                 route = Routes.Login.createRoute(),
                 enterTransition = {
@@ -44,23 +44,47 @@ fun NavigationGraph(
                 AuthScreenStateful(
                     onNavRegister = {
                         navController.navigate(Routes.Register.createRoute()) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
                             launchSingleTop = true
                             restoreState = false
                         }
                     },
                 )
             }
-            composable(route = Routes.Register.createRoute()) {
+            composable(
+                route = Routes.Register.createRoute(),
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(100)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(100)
+                    )
+                }) {
                 appState.setVisibleBottomNav(false)
                 RegisterStateful(
-                    onNavLogin = { navController.popBackStack() }
+                    onNavLogin = {
+                        navController.navigate(Routes.Login.createRoute()) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
                 )
             }
         }
         navigation(
             startDestination = Routes.Home.route,
             route = "home"
-        ){
+        ) {
             composable(route = Routes.Home.createRoute()) {
                 appState.setVisibleBottomNav(true)
             }
@@ -68,7 +92,7 @@ fun NavigationGraph(
         navigation(
             startDestination = Routes.Home.route,
             route = "home"
-        ){
+        ) {
             composable(route = Routes.Home.createRoute()) {
                 appState.setVisibleBottomNav(true)
             }
@@ -76,7 +100,7 @@ fun NavigationGraph(
         navigation(
             startDestination = Routes.Home.route,
             route = "home"
-        ){
+        ) {
             composable(route = Routes.Home.createRoute()) {
                 appState.setVisibleBottomNav(true)
             }
@@ -84,7 +108,7 @@ fun NavigationGraph(
         navigation(
             startDestination = Routes.Home.route,
             route = "home"
-        ){
+        ) {
             composable(route = Routes.Home.createRoute()) {
                 appState.setVisibleBottomNav(true)
             }

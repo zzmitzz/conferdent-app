@@ -5,10 +5,7 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="LoginPrevComponents">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="HomePrev">
+      <SelectionState runConfigName="SePV">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

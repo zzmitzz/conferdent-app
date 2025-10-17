@@ -16,10 +16,12 @@ kotlinSerialization = "2.2.0"
 material3AdaptiveNav3 = "1.3.0-alpha01"
 navigationAnimation = "2.7.3"
 navigationCompose = "2.9.5"
+navigationComposeAnim = "2.8.0"
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-compose-anim = { module = "androidx.navigation:navigation-compose-anim", version.ref = "navigationComposeAnim" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
