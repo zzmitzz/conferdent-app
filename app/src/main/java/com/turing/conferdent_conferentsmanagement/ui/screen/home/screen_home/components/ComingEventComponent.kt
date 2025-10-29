@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.sp
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 
 @Composable
-fun ComingEventComponent() {
+fun ComingEventComponent(
+    eventCardInformationUIList: List<EventCardInformationUI>
+) {
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -34,10 +36,12 @@ fun ComingEventComponent() {
             )
         }
         LazyColumn {
-            items(10) {
+            items(eventCardInformationUIList.size) {
                 Box(
                 ){
-                    EventCard()
+                    EventCard(
+                        eventCardInformationUI = eventCardInformationUIList[it]
+                    )
                 }
             }
         }

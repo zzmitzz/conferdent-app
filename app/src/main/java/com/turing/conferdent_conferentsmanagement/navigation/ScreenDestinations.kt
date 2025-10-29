@@ -80,4 +80,8 @@ sealed class Routes(
     data object Setting : Routes("setting_screen"){
         fun createRoute() = "setting_screen"
     }
+
+    data object Search : Routes("search_screen"){
+        fun createRoute() = "search_screen"
+    }
 }

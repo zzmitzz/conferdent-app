@@ -12,14 +12,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,8 +50,26 @@ import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 
 @Composable
 fun RegisterComponents(
-    onNavLogin: () -> Unit = {}
+    onNavLogin: () -> Unit = {},
+    onClickRegister: (
+        fullName: String,
+        email: String,
+        password: String,
+        confirmPassword: String
+    ) -> Unit = { _, _, _, _ -> },
+    onUsernameError: String? = null,
+    onEmailError: String? = null,
+    onPasswordError: String? = null,
+    onConfirmPasswordError: String? = null
 ) {
+
+    var fullName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,28 +105,31 @@ fun RegisterComponents(
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(R.string.username),
+                text = stringResource(R.string.full_name),
                 fontFamily = JosefinSans,
                 fontWeight = FontWeight.Normal,
                 fontSize = 20.sp
             )
 
         }
-        Box(
+        Column(
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(53.dp),
-                value = "",
-                onValueChange = {},
+                value = fullName,
+                onValueChange = {
+                    fullName = it
+                },
                 placeholder = {
                     Text(
-                        stringResource(R.string.username),
+                        stringResource(R.string.full_name),
                         color = Color("#B5B4B4".toColorInt())
                     )
                 },
+                isError = onUsernameError != null,
                 singleLine = true,
                 shape = RoundedCornerShape(100.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -110,6 +144,13 @@ fun RegisterComponents(
                 ),
 
                 )
+            if (onUsernameError != null) {
+                Text(
+                    text = onUsernameError,
+                    color = Color.Red,
+                    fontSize = 12.sp
+                )
+            }
         }
         Box(
             modifier = Modifier
@@ -127,21 +168,24 @@ fun RegisterComponents(
             )
 
         }
-        Box(
+        Column(
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(53.dp),
-                value = "",
-                onValueChange = {},
+                value = email,
+                onValueChange = {
+                    email = it
+                },
                 placeholder = {
                     Text(
                         stringResource(R.string.email),
                         color = Color("#B5B4B4".toColorInt())
                     )
                 },
+                isError = onEmailError != null,
                 singleLine = true,
                 shape = RoundedCornerShape(100.dp),
 
@@ -156,6 +200,13 @@ fun RegisterComponents(
                     errorBorderColor = Color.Transparent
                 ),
             )
+            if (onEmailError != null) {
+                Text(
+                    text = onEmailError,
+                    color = Color.Red,
+                    fontSize = 12.sp
+                )
+            }
         }
         Box(
             modifier = Modifier
@@ -173,26 +224,41 @@ fun RegisterComponents(
             )
 
         }
-        Box(
+        Column(
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(53.dp),
-                value = "",
-                onValueChange = {},
+                value = password,
+                onValueChange = {
+                    password = it
+                },
+                isError = onPasswordError != null,
                 placeholder = {
                     Text(
                         stringResource(R.string.password),
                         color = Color("#B5B4B4".toColorInt())
                     )
                 },
-                suffix = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_visibility),
-                        contentDescription = "visibility",
-                    )
+                visualTransformation = if (passwordVisible)
+                    VisualTransformation.None
+                else
+                    PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                trailingIcon = {
+                    val icon = if (passwordVisible)
+                        Icons.Default.Visibility
+                    else
+                        Icons.Default.VisibilityOff
+
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = icon, contentDescription = null)
+                    }
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(100.dp),
@@ -208,6 +274,13 @@ fun RegisterComponents(
                 ),
 
                 )
+            if (onPasswordError != null) {
+                Text(
+                    text = onPasswordError,
+                    color = Color.Red,
+                    fontSize = 12.sp
+                )
+            }
         }
         Box(
             modifier = Modifier
@@ -225,26 +298,41 @@ fun RegisterComponents(
             )
 
         }
-        Box(
+        Column(
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(53.dp),
-                value = "",
-                onValueChange = {},
+                value = confirmPassword,
+                onValueChange = {
+                    confirmPassword = it
+                },
                 placeholder = {
                     Text(
                         stringResource(R.string.password_again),
                         color = Color("#B5B4B4".toColorInt())
                     )
                 },
-                suffix = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_visibility),
-                        contentDescription = "visibility",
-                    )
+                isError = onConfirmPasswordError != null,
+                visualTransformation = if (confirmPasswordVisible)
+                    VisualTransformation.None
+                else
+                    PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                trailingIcon = {
+                    val icon = if (confirmPasswordVisible)
+                        Icons.Default.Visibility
+                    else
+                        Icons.Default.VisibilityOff
+
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(imageVector = icon, contentDescription = null)
+                    }
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(100.dp),
@@ -260,6 +348,13 @@ fun RegisterComponents(
                 ),
 
                 )
+            if (onConfirmPasswordError != null) {
+                Text(
+                    text = onConfirmPasswordError,
+                    color = Color.Red,
+                    fontSize = 12.sp
+                )
+            }
         }
         Spacer(
             modifier = Modifier.height(30.dp)
@@ -271,7 +366,9 @@ fun RegisterComponents(
             ),
         ) {
             Button(
-                onClick = {},
+                onClick = {
+                    onClickRegister(fullName, email, password, confirmPassword)
+                },
                 modifier = Modifier.wrapContentWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color("#22272F".toColorInt()),

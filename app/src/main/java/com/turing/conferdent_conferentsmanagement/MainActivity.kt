@@ -27,14 +27,12 @@ class MainActivity : ComponentActivity() {
             val appState = rememberConferdentAppState(
                 navController = navController,
             )
-            ConferdentConferentsManagementTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ConferdentApp(
-                        navController = navController,
-                        appState = appState,
-                        modifier = Modifier,
-                    )
-                }
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                ConferdentApp(
+                    navController = navController,
+                    appState = appState,
+                    modifier = Modifier,
+                )
             }
         }
     }

@@ -39,14 +39,17 @@ class ConferdentAppState(
     private var _currentTopLevelDestination = MutableStateFlow(TopLevelDestination.HOME)
     val currentTopLevelDestination = _currentTopLevelDestination.asStateFlow()
 
+    private var _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     fun navigateToTopLevelDestination(destination: TopLevelDestination) {
         if (currentTopLevelDestination.value != destination) {
             _currentTopLevelDestination.value = destination
-//            navController.navigate(destination.route) {
-//                popUpTo(navController.graph.id) {
-//                    inclusive = true
-//                }
-//            }
+            navController.navigate(destination.route) {
+                popUpTo(navController.graph.id) {
+                    inclusive = true
+                }
+            }
         }
     }
 
@@ -56,5 +59,9 @@ class ConferdentAppState(
 
     fun setVisibleBottomNav(isVisible: Boolean) {
         _isShownBottomNav.value = isVisible
+    }
+
+    fun setLoading(isLoading: Boolean) {
+        _isLoading.value = isLoading
     }
 }

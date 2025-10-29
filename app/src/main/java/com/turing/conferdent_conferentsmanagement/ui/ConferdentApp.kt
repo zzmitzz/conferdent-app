@@ -31,7 +31,6 @@ fun ConferdentApp(
     appState: ConferdentAppState,
     modifier: Modifier,
 ) {
-
     val isShowBottomNav = appState.isShownBottomNav.collectAsStateWithLifecycle()
     val currDestination = appState.currentTopLevelDestination.collectAsStateWithLifecycle()
 
@@ -49,7 +48,7 @@ fun ConferdentApp(
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        bottom.linkTo(if (isShowBottomNav.value) bottomBar.top else parent.bottom)
+                        bottom.linkTo(parent.bottom)
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
                     }
@@ -77,5 +76,8 @@ fun ConferdentApp(
                 }
             }
         }
+
+
+
     }
 }

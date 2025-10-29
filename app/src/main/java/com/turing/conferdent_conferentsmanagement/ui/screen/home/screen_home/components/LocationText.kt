@@ -23,8 +23,8 @@ import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 
 @Composable
 fun LocationText(
-    state: String = "Quận Tây Hồ",
-    city: String = "Hà Nội"
+    state: String? = null,
+    city: String? = null
 ) {
     Row(
         modifier = Modifier
@@ -32,7 +32,8 @@ fun LocationText(
             .background(
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White
-            ).padding(
+            )
+            .padding(
                 horizontal = 16.dp,
                 vertical = 8.dp
             ),
@@ -46,7 +47,7 @@ fun LocationText(
             Modifier.width(8.dp)
         )
         Text(
-            text = "$state, $city",
+            text = if(state != null && city != null) "$state, $city" else "Try again later!",
             color = Color.Black,
             fontFamily = JosefinSans,
             fontWeight = FontWeight.Normal,

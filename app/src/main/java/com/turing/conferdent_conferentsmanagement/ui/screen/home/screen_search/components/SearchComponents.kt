@@ -32,6 +32,7 @@ fun SearchComponents(
             .height(53.dp),
         value = searchKey,
         onValueChange = {
+            searchKey = it
             onSearchKeyChange(it)
         },
         placeholder = {

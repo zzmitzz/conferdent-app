@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.turing.conferdent_conferentsmanagement.R
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
+import com.turing.conferdent_conferentsmanagement.utils.Constants
 
 
 @Composable
@@ -71,7 +72,7 @@ data class CategoryUIWrapper(
 
 @Composable
 fun CategoryComponent(
-    listCategory: List<CategoryUIWrapper> = mockData
+    listCategory: List<CategoryUIWrapper> = categoryList
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
@@ -113,12 +114,10 @@ private fun CatePrev() {
     CategoryComponent()
 }
 
-val mockData = buildList {
-    repeat(10) {
-        add(CategoryUIWrapper(
-            id = it.toString(),
-            icon = R.drawable.ic_tech,
-            name = R.string.tech
-        ))
-    }
+val categoryList = Constants.EventCategory.entries.map {
+    CategoryUIWrapper(
+        id = it.ordinal.toString(),
+        icon = it.icon,
+        name = it.showName,
+    )
 }

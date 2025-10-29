@@ -16,4 +16,24 @@
     <string name="setting">Setting</string>
     <string name="tech">Technology</string>
     <string name="search">Search</string>
+    <string name="full_name">Full name</string>
+    <string name="environment">Environment</string>
+    <string name="economic">Economic</string>
+    <string name="education">Education</string>
+    <string name="medical">Medical</string>
+    <string name="result_not_found">Không tìm thấy kết quả</string>
+    <string name="personal_settings">Cài đặt cá \nnhân</string>
+    <string name="registered_event">Hội nghị đã \nđăng ký</string>
+    <string name="upcoming">Chưa diễn ra</string>
+    <string name="passed">Đã diễn ra</string>
+    <string name="no_event_is_happening_now">Has\'t any event is happening now.</string>
+    <string name="no_event_is_upcoming">No event is upcoming.</string>
+    <string name="no_event_is_registered">No event is registered</string>
+    <string name="event_is_over">Hội nghị đã kết thúc</string>
+    <string name="event_is_happening_now">Hội nghị đang diễn ra</string>
+    <string name="event_is_coming_after">Diễn ra \ntrong</string>
+    <string name="day">Ngày</string>
+    <string name="hour">Giờ</string>
+    <string name="minute">Phút</string>
+    <string name="second">Giây</string>
 </resources>

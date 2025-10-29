@@ -1,6 +1,7 @@
 package com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_home.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,13 +31,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import coil.compose.AsyncImage
 import com.turing.conferdent_conferentsmanagement.R
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
+import com.turing.conferdent_conferentsmanagement.utils.parseLocalDateToFormat
+import com.turing.conferdent_conferentsmanagement.utils.parseTimeFromServer
+import java.time.LocalDate
 
 // --- Main Composable Function ---
 
+data class EventCardInformationUI(
+    val title: String,
+    val category: String,
+    val organization: String,
+    val logo: String,
+    val startTime: String,
+    val endTime: String,
+    val location: String,
+)
+
 @Composable
-fun EventCard() {
+fun EventCard(
+    eventCardInformationUI: EventCardInformationUI,
+    onNotificationClick: (String) -> Unit = {}
+) {
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,10 +71,12 @@ fun EventCard() {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(R.drawable.conference_image),
+            AsyncImage(
+                model = eventCardInformationUI.logo,
                 contentDescription = "Hội nghị Công nghệ Số Việt Nam 2025 Stage",
                 contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.img_loading),
+                error = painterResource(R.drawable.img_loading),
                 modifier = Modifier
                     .size(110.dp)
                     .clip(RoundedCornerShape(16.dp))
@@ -71,18 +93,25 @@ fun EventCard() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Hội nghị Công nghệ Số Việt Nam 2025",
+                        text = eventCardInformationUI.title,
                         fontFamily = JosefinSans,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(R.drawable.ic_noti),
-                        contentDescription = "Set Reminder",
-                        tint = Color.DarkGray
-                    )
+                    if (LocalDate.now()
+                            .isBefore(parseTimeFromServer(eventCardInformationUI.startTime).toLocalDate())
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_noti),
+                            contentDescription = "Set Reminder",
+                            tint = Color.DarkGray,
+                            modifier = Modifier.clickable {
+                                onNotificationClick(eventCardInformationUI.title)
+                            }
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(5.dp))
                 Surface(
@@ -90,14 +119,14 @@ fun EventCard() {
                     color = Color(0xFFECEBF0) // Light lavender color
                 ) {
                     Text(
-                        text = "Công nghệ",
+                        text = eventCardInformationUI.category,
                         color = Color.Black, // Indigo color
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         fontSize = 6.sp,
                     )
                 }
                 Spacer(modifier = Modifier.height(5.dp))
-                InfoRow(icon = R.drawable.ic_org, text = "VNTechConf")
+                InfoRow(icon = R.drawable.ic_org, text = eventCardInformationUI.organization)
 
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -107,9 +136,13 @@ fun EventCard() {
                         contentDescription = "Time",
                         modifier = Modifier.size(9.dp),
 
-                    )
+                        )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "09:00, ngày 03/11/2025", fontSize = 9.sp, color = Color.Black)
+                    Text(
+                        text = parseLocalDateToFormat(
+                            parseTimeFromServer(eventCardInformationUI.startTime)
+                        ), fontSize = 9.sp, color = Color.Black
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -120,12 +153,18 @@ fun EventCard() {
                         modifier = Modifier.size(9.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "17:00, ngày 03/11/2025", fontSize = 9.sp, color = Color.Black)
+                    Text(
+                        text = parseLocalDateToFormat(
+                            parseTimeFromServer(eventCardInformationUI.endTime)
+                        ),
+                        fontSize = 9.sp,
+                        color = Color.Black
+                    )
                 }
                 Spacer(modifier = Modifier.height(5.dp))
                 InfoRow(
                     icon = R.drawable.ic_location,
-                    text = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội"
+                    text = eventCardInformationUI.location
                 )
             }
         }
@@ -156,5 +195,15 @@ private fun InfoRow(icon: Int, text: String) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun EventCardPreview() {
-    EventCard()
+    EventCard(
+        eventCardInformationUI = EventCardInformationUI(
+            title = "Hội nghị Công nghệ Số Việt Nam 2025",
+            category = "Công nghệ",
+            organization = "VNTechConf",
+            logo = "https://example.com/logo.png",
+            startTime = "2025-11-10T09:00:00.000Z",
+            endTime = "2025-11-10T17:00:00.000Z",
+            location = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội"
+        )
+    )
 }
