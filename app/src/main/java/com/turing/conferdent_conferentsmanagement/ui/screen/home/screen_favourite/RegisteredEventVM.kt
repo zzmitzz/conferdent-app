@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
 import com.turing.conferdent_conferentsmanagement.data.event.EventDetail
 import com.turing.conferdent_conferentsmanagement.data.event.EventRepository
-import com.turing.conferdent_conferentsmanagement.data.event.RegisteredEventListWrapper
 import com.turing.conferdent_conferentsmanagement.utils.parseTimeFromServer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

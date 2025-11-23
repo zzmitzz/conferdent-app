@@ -78,6 +78,7 @@ class ScreenHomeVM @Inject constructor(
                 is APIResult.Success -> {
                     updateEventState(ScreenHomeEvent.LoadEventSuccess(result.data.map {
                         EventCardInformationUI(
+                            id = it.Id ?: "",
                             title = it.name ?: "",
                             location = it.location ?: "",
                             startTime = it.startTime ?: "" ,

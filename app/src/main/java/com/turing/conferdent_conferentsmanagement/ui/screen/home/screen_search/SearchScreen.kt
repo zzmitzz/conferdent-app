@@ -112,6 +112,7 @@ fun SearchScreen(
                         ) {
                             EventCard(data[it].let { it ->
                                 EventCardInformationUI(
+                                    id = it.Id ?: "",
                                     title = it.name ?: "",
                                     location = it.location ?: "",
                                     startTime = it.startTime ?: "",

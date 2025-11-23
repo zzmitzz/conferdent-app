@@ -18,7 +18,8 @@ import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 
 @Composable
 fun ComingEventComponent(
-    eventCardInformationUIList: List<EventCardInformationUI>
+    eventCardInformationUIList: List<EventCardInformationUI>,
+    onNavEventDetail: (String) -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
@@ -41,7 +42,9 @@ fun ComingEventComponent(
                 ){
                     EventCard(
                         eventCardInformationUI = eventCardInformationUIList[it]
-                    )
+                    ){ eventID ->
+                        onNavEventDetail(eventID)
+                    }
                 }
             }
         }

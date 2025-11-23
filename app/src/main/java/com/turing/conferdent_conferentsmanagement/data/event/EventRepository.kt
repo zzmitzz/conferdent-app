@@ -1,6 +1,10 @@
 package com.turing.conferdent_conferentsmanagement.data.event
 
+import android.util.Log
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
+import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
+import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
+import com.turing.conferdent_conferentsmanagement.data.event.models.Responses
 import javax.inject.Inject
 
 class EventRepository @Inject constructor(
@@ -77,4 +81,63 @@ class EventRepository @Inject constructor(
             APIResult.Error(e.message.toString())
         }
     }
+
+    suspend fun getEventDetail(
+        eventID: String
+    ): APIResult<EventDetail> {
+        return try {
+            val result = eventEndpoint.getEventDetail(eventID)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            APIResult.Error(e.message.toString())
+        }
+    }
+
+    suspend fun registerEvent(
+        eventID: String
+    ): APIResult<FormData> {
+        return try {
+            val result = eventEndpoint.registerEvent(eventID)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            Log.d("API", e.message.toString())
+            APIResult.Error(e.message.toString())
+        }
+    }
+
+
+    suspend fun submitResponse(
+        eventID: String,
+        response: Map<String, String>
+    ): APIResult<String> {
+        val response = RegistrationResponseSubmit(
+            eventId = eventID,
+            responses = response.map {
+                Responses(
+                    formFieldsId = it.key,
+                    response = it.value
+                )
+            }
+        )
+        return try {
+            val result = eventEndpoint.submitResponse(response)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success("SUCCESS")
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            Log.d("API", e.message.toString())
+            APIResult.Error(e.message.toString())
+        }
+    }
+
 }

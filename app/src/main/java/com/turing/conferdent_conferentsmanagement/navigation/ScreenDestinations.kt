@@ -67,21 +67,35 @@ sealed class Routes(
     }
 
     // HOME
-    data object Home : Routes("home_screen"){
+    data object Home : Routes("home_screen") {
         fun createRoute() = "home_screen"
     }
 
-    data object Favourite : Routes("favourite_screen"){
+    data object Favourite : Routes("favourite_screen") {
         fun createRoute() = "favourite_screen"
     }
-    data object Notification : Routes("notification_screen"){
+
+    data object Notification : Routes("notification_screen") {
         fun createRoute() = "notification_screen"
     }
-    data object Setting : Routes("setting_screen"){
+
+    data object Setting : Routes("setting_screen") {
         fun createRoute() = "setting_screen"
     }
 
-    data object Search : Routes("search_screen"){
+    data object Search : Routes("search_screen") {
         fun createRoute() = "search_screen"
+    }
+
+    data object EventDetail : Routes("event_detail_screen/{${EVENT_ID}}") {
+        fun createRoute(eventID: String) = "event_detail_screen/$eventID"
+    }
+
+    data object EventRegister : Routes("event_register_screen/{${EVENT_ID}}") {
+        fun createRoute(eventID: String) = "event_register_screen/$eventID"
+    }
+
+    companion object {
+        const val EVENT_ID = "EVENT_ID"
     }
 }

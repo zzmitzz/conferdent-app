@@ -41,6 +41,7 @@ import java.time.LocalDate
 // --- Main Composable Function ---
 
 data class EventCardInformationUI(
+    val id: String = "",
     val title: String,
     val category: String,
     val organization: String,
@@ -53,14 +54,19 @@ data class EventCardInformationUI(
 @Composable
 fun EventCard(
     eventCardInformationUI: EventCardInformationUI,
-    onNotificationClick: (String) -> Unit = {}
+    onNotificationClick: (String) -> Unit = {},
+    onEventClick: (String) -> Unit = {} // bring the id bruh.
 ) {
 
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable {
+                onEventClick(eventCardInformationUI.id)
+            }
+        ,
         shape = RoundedCornerShape(10.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
@@ -174,7 +180,7 @@ fun EventCard(
 // --- Helper Composable for Icon + Text rows ---
 
 @Composable
-private fun InfoRow(icon: Int, text: String) {
+fun InfoRow(icon: Int, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(icon),

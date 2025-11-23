@@ -63,6 +63,7 @@ fun RegisteredEventCardComponents(
                     EventCard(
                         eventCardInformationUI = detail.let { eventDetail ->
                             EventCardInformationUI(
+                                id = eventDetail.Id ?: "",
                                 title = eventDetail.name ?: "",
                                 location = eventDetail.location ?: "",
                                 startTime = eventDetail.startTime ?: "",

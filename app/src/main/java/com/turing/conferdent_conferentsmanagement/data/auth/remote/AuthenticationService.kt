@@ -54,6 +54,6 @@ interface AuthenticationService {
 
     @POST("/registrations/auth/logout")
     suspend fun logout(
-    ): Response<BaseResponse<Nothing>>
+    ): Response<BaseResponse<String>>
 
 }

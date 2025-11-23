@@ -39,7 +39,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun doLogout(): APIResult<BaseResponse<Nothing>> {
+    suspend fun doLogout(): APIResult<BaseResponse<String>> {
         val response = authService.logout()
         return if (response.isSuccessful) {
             APIResult.Success(response.body()!!)

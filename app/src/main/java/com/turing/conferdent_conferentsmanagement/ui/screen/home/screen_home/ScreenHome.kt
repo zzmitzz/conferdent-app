@@ -63,7 +63,8 @@ private fun HomePrev() {
 @Composable
 fun ScreenHome(
     onNavSearch: () -> Unit = {},
-    viewModel: ScreenHomeVM = hiltViewModel()
+    viewModel: ScreenHomeVM = hiltViewModel(),
+    onNavEventDetail: (String) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -100,7 +101,10 @@ fun ScreenHome(
         scrollState = scrollState,
         currentLocation = if (city != null && province != null) (province!! to city!!) else null,
         userName = userState,
-        eventState = eventState
+        eventState = eventState,
+        onNavEventDetail = {
+            onNavEventDetail(it)
+        }
     )
 }
 
@@ -110,7 +114,8 @@ fun ScreenStateless(
     scrollState: ScrollState,
     currentLocation: Pair<String, String>? = null,
     userName: ScreenHomeViewState = ScreenHomeViewState.Loading,
-    eventState: ScreenHomeEvent = ScreenHomeEvent.LoadEvent
+    eventState: ScreenHomeEvent = ScreenHomeEvent.LoadEvent,
+    onNavEventDetail: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -205,7 +210,9 @@ fun ScreenStateless(
                 is ScreenHomeEvent.LoadEventSuccess -> {
                     ComingEventComponent(
                         eventCardInformationUIList = eventState.eventCardInformationUIList
-                    )
+                    ){
+                        onNavEventDetail(it)
+                    }
                 }
 
                 is ScreenHomeEvent.LoadEventError -> {

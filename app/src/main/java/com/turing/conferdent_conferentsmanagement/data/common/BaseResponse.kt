@@ -12,3 +12,10 @@ data class BaseResponse<out T : Any>(
     val message: String,
     val data: T
 )
+
+@Serializable
+data class BaseResponseState(
+    val status: Int,
+    val success: Boolean,
+    val message: String
+)
