@@ -1,10 +1,9 @@
 package com.turing.conferdent_conferentsmanagement.data.event
 
-import com.google.android.gms.common.internal.safeparcel.SafeParcelable
+import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredIDResponse
 import com.turing.conferdent_conferentsmanagement.data.common.BaseResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
-import com.turing.conferdent_conferentsmanagement.models.FormFields
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -79,4 +78,10 @@ interface EventEndpoint {
     suspend fun submitResponse(
         @Body body: RegistrationResponseSubmit
     ): Response<String>
+
+
+    @GET("/registrations/events/{id}/registered")
+    suspend fun getRegistrationForm(
+        @Path("id") id: String
+    ): Response<BaseResponse<RegisteredIDResponse>>
 }

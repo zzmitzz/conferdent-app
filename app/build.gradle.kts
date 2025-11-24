@@ -82,5 +82,6 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation("com.google.maps.android:maps-compose:6.12.1") // ✅ latest stable version
     implementation("com.google.android.gms:play-services-maps:19.2.0")
+    implementation("com.github.androidmads:QRGenerator:1.0.5")
 
 }

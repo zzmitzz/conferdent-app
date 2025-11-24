@@ -3,6 +3,7 @@ package com.turing.conferdent_conferentsmanagement.data.event
 import android.util.Log
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
 import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
+import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredIDResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
 import com.turing.conferdent_conferentsmanagement.data.event.models.Responses
 import javax.inject.Inject
@@ -135,7 +136,22 @@ class EventRepository @Inject constructor(
                 APIResult.Error(result.message())
             }
         } catch (e: Exception) {
-            Log.d("API", e.message.toString())
+            APIResult.Error(e.message.toString())
+        }
+    }
+
+
+    suspend fun getRegistrationForm(
+        eventID: String
+    ): APIResult<RegisteredIDResponse> {
+        return try {
+            val result = eventEndpoint.getRegistrationForm(eventID)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
             APIResult.Error(e.message.toString())
         }
     }

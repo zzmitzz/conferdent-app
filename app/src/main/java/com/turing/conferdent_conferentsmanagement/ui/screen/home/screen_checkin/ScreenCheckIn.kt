@@ -1,5 +1,6 @@
 package com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_checkin
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,10 +26,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +48,7 @@ import com.turing.conferdent_conferentsmanagement.core.ui.RoseCurveSpinner
 import com.turing.conferdent_conferentsmanagement.data.event.EventDetail
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVM
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVMState
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.QRGenerateState
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 
 
@@ -52,20 +57,31 @@ fun ScreenCheckInQR(
     navBack: () -> Unit,
     viewModel: MainEventVM
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.qrScreenState.collectAsStateWithLifecycle()
+    val eventState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.getRegistration()
+    }
+
     when (uiState) {
-        is MainEventVMState.Success -> {
-            val data = (uiState as MainEventVMState.Success).event
+        is QRGenerateState.Success -> {
+            val data = (uiState as QRGenerateState.Success).qrCode
             ScreenQRCheckIn(
                 onNavBack = navBack,
-                event = data
-            )
+                event = (eventState as MainEventVMState.Success).event,
+                bitmap = data
+                )
         }
-
         else -> {
-            RoseCurveSpinner(
-                color = Color.Black
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                RoseCurveSpinner(
+                    color = Color.Black
+                )
+            }
         }
     }
 }
@@ -75,8 +91,9 @@ fun ScreenCheckInQR(
 fun ScreenQRCheckIn(
     onNavBack: () -> Unit = {},
     event: EventDetail,
-
+    bitmap: Bitmap? = null,
     ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -144,13 +161,36 @@ fun ScreenQRCheckIn(
                 Spacer(
                     Modifier.height(20.dp)
                 )
-                Image(
-                    painter = painterResource(R.drawable.qr_bg),
-                    contentDescription = ""
-                )
-                Spacer(
-                    Modifier.height(20.dp)
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .wrapContentHeight(),
+                    contentAlignment = Alignment.Center
+                ){
+                    Image(
+                        painter = painterResource(R.drawable.qr_bg),
+                        contentDescription = ""
+                    )
+
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap.asImageBitmap(), // Convert Bitmap to ImageBitmap
+                            contentDescription = "Generated QR Code",
+                            modifier = Modifier
+                                .size(200.dp) // Adjust the size as per your design
+                                .padding(bottom = 16.dp, top = 20.dp, start = 16.dp, end = 16.dp) // Example padding to fit inside qr_bg, adjust as needed
+                        )
+                    } else {
+                        // Placeholder or loading indicator if bitmap is null
+                        Text(
+                            text = "Không có mã QR",
+                            fontFamily = JosefinSans,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(32.dp)
+                        )
+                    }
+                }
                 Spacer(
                     Modifier.height(20.dp)
                 )

@@ -76,7 +76,10 @@ fun MainEventScreen(
     eventID: String? = null,
     viewModel: MainEventVM,
     navigateBack: () -> Unit = {},
-    navigateRegister: () -> Unit = {}
+    navigateRegister: () -> Unit = {},
+    onCheckIn: () -> Unit = {},
+    onMapClick: () -> Unit = {},
+    onScheduleClick: () -> Unit = {}
 ) {
     val appState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -93,7 +96,16 @@ fun MainEventScreen(
                     modifier = Modifier.fillMaxSize(),
                     event = ((appState) as MainEventVMState.Success).event,
                     navigateBack = navigateBack,
-                    navigateRegister = navigateRegister
+                    navigateRegister = navigateRegister,
+                    onCheckIn = {
+                        onCheckIn()
+                    },
+                    onMapClick = {
+                        onMapClick()
+                    },
+                    onScheduleClick = {
+                        onScheduleClick()
+                    }
                 )
             }
 
@@ -120,7 +132,10 @@ private fun MainEventDetailScreen(
     modifier: Modifier,
     event: EventDetail,
     navigateBack: () -> Unit = {},
-    navigateRegister: () -> Unit = {}
+    navigateRegister: () -> Unit = {},
+    onCheckIn: () -> Unit = {},
+    onMapClick: () -> Unit = {},
+    onScheduleClick: () -> Unit = {}
 ) {
 
 
@@ -182,6 +197,15 @@ private fun MainEventDetailScreen(
         } else {
             RegistrationHoldingCta(
                 modifier = Modifier.fillMaxWidth(),
+                onCheckIn = {
+                    onCheckIn()
+                },
+                onMapClick = {
+                    onMapClick()
+                },
+                onScheduleClick = {
+                    onScheduleClick()
+                }
             )
         }
     }

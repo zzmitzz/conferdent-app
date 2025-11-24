@@ -2,6 +2,7 @@ package com.turing.conferdent_conferentsmanagement.navigation
 
 import androidx.annotation.StringRes
 import com.turing.conferdent_conferentsmanagement.R
+import okhttp3.Route
 
 /**
  * Type for the top level destinations in the application. Contains metadata about the destination
@@ -93,6 +94,9 @@ sealed class Routes(
 
     data object EventRegister : Routes("event_register_screen/{${EVENT_ID}}") {
         fun createRoute(eventID: String) = "event_register_screen/$eventID"
+    }
+    object CheckInQR : Routes("check_in_qr") {
+        fun createRoute() = "check_in_qr"
     }
 
     companion object {

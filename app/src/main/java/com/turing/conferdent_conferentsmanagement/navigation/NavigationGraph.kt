@@ -20,6 +20,7 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.auth.login.AuthScree
 import com.turing.conferdent_conferentsmanagement.ui.screen.auth.register.RegisterStateful
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventScreen
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVM
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_checkin.ScreenCheckInQR
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_favourite.RegisteredEventScreenStateful
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.ScreenFillForm
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_home.ScreenHome
@@ -217,8 +218,10 @@ fun NavigationGraph(
                 appState.setVisibleBottomNav(false)
                 val eventID = entry.arguments?.getString(Routes.EVENT_ID)
 
-                val parentEntry = remember(entry) { navController.getBackStackEntry("home") }
-                val viewModel: MainEventVM = viewModel(parentEntry)
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry("home")
+                }
+                val viewModel: MainEventVM = hiltViewModel(parentEntry)
                 MainEventScreen(
                     eventID,
                     navigateBack = {
@@ -230,10 +233,56 @@ fun NavigationGraph(
                             restoreState = false
                         }
                     },
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onCheckIn = {
+                        navController.navigate(Routes.CheckInQR.createRoute())
+                        {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
                 )
             }
 
+            composable(
+                route = Routes.CheckInQR.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+            ) { entry ->
+                appState.setVisibleBottomNav(false) // Hide bottom nav for detail/action screens
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry("home")
+                }
+                val viewModel: MainEventVM = hiltViewModel(parentEntry)
+                ScreenCheckInQR(
+                    navBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel = viewModel // Pass the shared ViewModel
+                )
+            }
             composable(
                 route = Routes.EventRegister.route,
                 arguments = listOf(
@@ -370,5 +419,7 @@ fun NavigationGraph(
         ) {
             ScreenNotification()
         }
+
+
     }
 }
