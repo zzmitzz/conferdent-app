@@ -21,7 +21,7 @@ sealed class ScreenFFState {
         val formData: FormData
     ) : ScreenFFState()
 
-    object Error : ScreenFFState()
+    data class Error(val message: String? = null) : ScreenFFState()
 }
 
 sealed class ScreenFFUIEffect {
@@ -56,11 +56,12 @@ class ScreenFillFormVM @Inject constructor(
                     }
 
                     is APIResult.Error -> {
-                        ScreenFFState.Error
+                        ScreenFFState.Error(result.message)
                     }
                 }
             } catch (e: Exception) {
-                _state.value = ScreenFFState.Error
+                _state.value =  ScreenFFState.Error(e.message)
+
             }
         }
     }
@@ -76,9 +77,15 @@ class ScreenFillFormVM @Inject constructor(
                     _effect.emit(ScreenFFUIEffect.ShowToast("Something went wrong"))
                 }
             } catch (e: Exception) {
-                _state.value = ScreenFFState.Error
+                _state.value = ScreenFFState.Error(e.message)
             }
 
+        }
+    }
+
+    fun showValidationError(message: String) {
+        viewModelScope.launch {
+            _effect.emit(ScreenFFUIEffect.ShowToast(message))
         }
     }
 

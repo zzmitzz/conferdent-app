@@ -60,7 +60,7 @@ fun CountDownTimeComponents(
     var dateTimeNow by remember { mutableStateOf(LocalDateTime.now()) }
 
     LaunchedEffect(Unit) {
-        while (true) {
+        while (dateTimeNow.isBefore(startTimeEvent)) {
             delay(1000)
             dateTimeNow = LocalDateTime.now()
         }

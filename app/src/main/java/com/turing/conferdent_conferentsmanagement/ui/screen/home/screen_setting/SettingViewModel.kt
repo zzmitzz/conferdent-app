@@ -95,15 +95,17 @@ class SettingViewModel @Inject constructor(
                 val user = result.data
                 _state.value = SettingVMState.Success(
                     userProfile = UserProfile(
-                        email = user.email,
-                        phone = user.phone,
+                        email = user.email ?: "Chưa cung cấp",
+                        phone = user.phone ?: "Chưa cung cấp",
                         fullName = user.fullName,
-                        dob = parseLocalDateToFormat(
-                            parseTimeFromServer(user.dob!!),
-                            DateTimeFormatPattern.PATTERN_SERVER
-                        ),
-                        address = user.address,
-                        bio = user.bio,
+                        dob = user.dob?.let {
+                            parseLocalDateToFormat(
+                                parseTimeFromServer(user.dob),
+                                DateTimeFormatPattern.PATTERN_SERVER
+                            )
+                        } ?: "Chưa cung cấp",
+                        address = user.address ?: "Chưa cung cấp",
+                        bio = user.bio?: "Chưa cung cấp",
                         avatarURL = user.avatar
                     ),
                     isNotificationEnabled = false,

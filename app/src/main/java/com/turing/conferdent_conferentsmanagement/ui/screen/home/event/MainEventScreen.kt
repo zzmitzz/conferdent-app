@@ -2,7 +2,6 @@ package com.turing.conferdent_conferentsmanagement.ui.screen.home.event
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,21 +17,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -42,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.google.android.gms.maps.model.CameraPosition
@@ -54,20 +50,18 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.turing.conferdent_conferentsmanagement.R
 import com.turing.conferdent_conferentsmanagement.core.ui.RoseCurveSpinner
 import com.turing.conferdent_conferentsmanagement.data.event.EventDetail
-import com.turing.conferdent_conferentsmanagement.models.SpeakerUIModel
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.models.SpeakerUIModel
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.CountDownTimeComponents
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.HeaderComponents
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.InfoRowMain
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.RegistrationCta
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.RegistrationHoldingCta
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.SpeakerListRow
-import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_home.components.InfoRow
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.models.OrganizerUIModel
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 import com.turing.conferdent_conferentsmanagement.utils.parseLocalDateToFormat
 import com.turing.conferdent_conferentsmanagement.utils.parseTimeFromServer
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -85,6 +79,11 @@ fun MainEventScreen(
     LaunchedEffect(Unit) {
         viewModel.fetchEventDetail(eventID)
     }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearState()
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -97,6 +96,22 @@ fun MainEventScreen(
                     event = ((appState) as MainEventVMState.Success).event,
                     navigateBack = navigateBack,
                     navigateRegister = navigateRegister,
+                    speakerList = ((appState) as MainEventVMState.Success).event.speakers.map {
+                        SpeakerUIModel(
+                            name = it.fullName ?: "Not provided",
+                            avatar = it.photoUrl ?: "Not provided",
+                            workingAt = it.professionalTitle ?: ""
+                        )
+                    },
+                    organizerData = ((appState) as MainEventVMState.Success).event.organizers.let {
+                        OrganizerUIModel(
+                            name = it!!.name!!,
+                            avatar = it.avatar ?: "",
+                            description = it.describe!!
+
+                        )
+
+                    },
                     onCheckIn = {
                         onCheckIn()
                     },
@@ -131,6 +146,8 @@ fun MainEventScreen(
 private fun MainEventDetailScreen(
     modifier: Modifier,
     event: EventDetail,
+    speakerList: List<SpeakerUIModel> = emptyList(),
+    organizerData: OrganizerUIModel? = null,
     navigateBack: () -> Unit = {},
     navigateRegister: () -> Unit = {},
     onCheckIn: () -> Unit = {},
@@ -140,23 +157,19 @@ private fun MainEventDetailScreen(
 
 
     var secondsLeft by remember { mutableStateOf(LocalDateTime.now()) }
-
-    val isEventOnGoing = remember {
-        derivedStateOf {
-            secondsLeft.isAfter(
-                parseTimeFromServer(
-                    event.startTime ?: "2025-11-10T09:00:00.000Z"
-                )
-            ) && secondsLeft.isBefore(
-                parseTimeFromServer(
-                    event.endTime ?: "2025-11-10T09:00:00.000Z"
-                )
-            )
-        }
+    val eventStart = remember(event.startTime) {
+        parseTimeFromServer(event.startTime!!)
+    }
+    val eventEnd = remember(event.endTime) {
+        parseTimeFromServer(event.endTime!!)
+    }
+    val isEventOnGoing by remember {
+        derivedStateOf { secondsLeft in eventStart..eventEnd }
     }
 
+
     LaunchedEffect(Unit) {
-        while (true) {
+        while (!isEventOnGoing && secondsLeft.isBefore(eventStart)) {
             delay(1000)
             secondsLeft = LocalDateTime.now()
         }
@@ -167,8 +180,8 @@ private fun MainEventDetailScreen(
     ) {
         EventHeader(
             modifier = Modifier.fillMaxWidth(),
-            startTime = parseTimeFromServer(event.startTime ?: "2025-11-10T09:00:00.000Z"),
-            endTime = parseTimeFromServer(event.endTime ?: "2025-11-10T09:00:00.000Z"),
+            startTime = eventStart,
+            endTime = eventEnd,
             eventThumbnail = event.thumbnail
                 ?: "https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg?cs=srgb&dl=pexels-eberhardgross-1421903.jpg&fm=jpg",
             navigateBack = navigateBack
@@ -178,9 +191,11 @@ private fun MainEventDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+            speak = speakerList,
+            organizerData = organizerData,
             event = event
         )
-        if (!isEventOnGoing.value) {
+        if (!isEventOnGoing) {
             RegistrationCta(
                 modifier = Modifier.fillMaxWidth(),
                 onButtonClick = {
@@ -236,7 +251,9 @@ private fun MainScreenPreview() {
 @Composable
 fun MainEventContent(
     modifier: Modifier,
-    event: EventDetail
+    event: EventDetail,
+    speak: List<SpeakerUIModel> = emptyList(),
+    organizerData: OrganizerUIModel? = null
 ) {
 
     val currentLatLng by remember {
@@ -290,9 +307,6 @@ fun MainEventContent(
                 fontSize = 12.sp,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        InfoRowMain(icon = R.drawable.ic_org, text = event.organizerId ?: "")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -348,8 +362,43 @@ fun MainEventContent(
             fontSize = 13.sp,
             color = Color("#6B6B6B".toColorInt()),
         )
-
         Spacer(modifier = Modifier.height(48.dp))
+
+        organizerData?.let {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(vertical = 40.dp, horizontal = 30.dp)
+            ) {
+                Row() {
+                    AsyncImage(
+                        model = organizerData.avatar,
+                        contentDescription = null,
+                        modifier = Modifier.size(42.dp).clip(CircleShape),
+                        placeholder = painterResource(R.drawable.img_loading)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = organizerData.name,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = JosefinSans,
+                        color = Color.Black,
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = organizerData.description,
+                    fontSize = 13.sp,
+                    color = Color("#6B6B6B".toColorInt()),
+                )
+            }
+            Spacer(modifier = Modifier.height(48.dp))
+        }
         Text(
             text = stringResource(R.string.speaker),
             fontSize = 24.sp,
@@ -358,57 +407,14 @@ fun MainEventContent(
             color = Color.Black,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        SpeakerListRow(
-            data = listOf(
-                SpeakerUIModel(
-                    name = "Speaker 1",
-                    avatar = "https://cdn.dribbble.com/userupload/23788648/file/original-a893a015e4cb1a39778df5de2b242107.jpg?resize=400x0",
-                    workingAt = "PTIT",
-                ),
-                SpeakerUIModel(
-                    name = "Speaker 1",
-                    avatar = "https://cdn.dribbble.com/userupload/23788648/file/original-a893a015e4cb1a39778df5de2b242107.jpg?resize=400x0",
-                    workingAt = "PTIT",
-                ),
-                SpeakerUIModel(
-                    name = "Speaker 1",
-                    avatar = "https://cdn.dribbble.com/userupload/23788648/file/original-a893a015e4cb1a39778df5de2b242107.jpg?resize=400x0",
-                    workingAt = "PTIT",
-                ),
-                SpeakerUIModel(
-                    name = "Speaker 1",
-                    avatar = "https://cdn.dribbble.com/userupload/23788648/file/original-a893a015e4cb1a39778df5de2b242107.jpg?resize=400x0",
-                    workingAt = "PTIT",
-                )
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Column(
-            modifier = Modifier
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(vertical = 40.dp, horizontal = 30.dp)
 
-        ) {
-            Text(
-                text = event.organizerId!!,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = JosefinSans,
-                color = Color.Black,
+        if (speak.isNotEmpty()) {
+            SpeakerListRow(
+                data = speak
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = event.description ?: "",
-                fontSize = 13.sp,
-                color = Color("#6B6B6B".toColorInt()),
-            )
         }
-        Spacer(modifier = Modifier.height(48.dp))
-
         Text(
             text = stringResource(R.string.maps),
             fontSize = 24.sp,

@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.turing.conferdent_conferentsmanagement.R
-import com.turing.conferdent_conferentsmanagement.models.SpeakerUIModel
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.models.SpeakerUIModel
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 import androidx.compose.ui.text.style.TextOverflow
 

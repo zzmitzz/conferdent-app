@@ -4,6 +4,7 @@ import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredID
 import com.turing.conferdent_conferentsmanagement.data.common.BaseResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
+import com.turing.conferdent_conferentsmanagement.models.SessionsModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -12,6 +13,30 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+
+
+
+@Serializable
+data class EventOrganizer(
+    @SerialName("name"     ) var name     : String? = null,
+    @SerialName("describe" ) var describe : String? = null,
+    @SerialName("avatar"   ) var avatar   : String? = null
+)
+
+@Serializable
+data class EventSpeakers(
+    @SerialName("id"                 ) var id                : Int?    = null,
+    @SerialName("full_name"          ) var fullName          : String? = null,
+    @SerialName("bio"                ) var bio               : String? = null,
+    @SerialName("event_id"           ) var eventId           : String? = null,
+    @SerialName("email"              ) var email             : String? = null,
+    @SerialName("phone"              ) var phone             : String? = null,
+    @SerialName("photo_url"          ) var photoUrl          : String? = null,
+    @SerialName("professional_title" ) var professionalTitle : String? = null,
+    @SerialName("linkedin_url"       ) var linkedinUrl       : String? = null,
+    @SerialName("created_at"         ) var createdAt         : String? = null,
+    @SerialName("updated_at"         ) var updatedAt         : String? = null
+)
 
 @Serializable
 data class EventDetail(
@@ -35,8 +60,9 @@ data class EventDetail(
     @SerialName("approver_id") val approverId: String? = null,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null,
-    @SerialName("is_registered") val isRegistered: Boolean = false
-
+    @SerialName("is_registered") val isRegistered: Boolean = false,
+    @SerialName("organizer") val organizers: EventOrganizer? = null,
+    @SerialName("speakers") val speakers: List<EventSpeakers> = emptyList()
     )
 
 @Serializable
@@ -84,4 +110,10 @@ interface EventEndpoint {
     suspend fun getRegistrationForm(
         @Path("id") id: String
     ): Response<BaseResponse<RegisteredIDResponse>>
+
+
+    @GET("/registrations/session-registrations/event/{id}/sessions")
+    suspend fun getEventSession(
+        @Path("id") id: String
+    ) : Response<BaseResponse<List<SessionsModel>>>
 }

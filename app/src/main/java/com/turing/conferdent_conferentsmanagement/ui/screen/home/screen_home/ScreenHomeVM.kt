@@ -8,6 +8,7 @@ import com.turing.conferdent_conferentsmanagement.data.common.APIResult
 import com.turing.conferdent_conferentsmanagement.data.event.EventRepository
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_home.components.EventCardInformationUI
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -71,7 +72,7 @@ class ScreenHomeVM @Inject constructor(
     }
 
     private fun eventFetchFlow() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             delay(2000L)
             val result = eventRepository.getEvents(true)
             when (result) {
@@ -123,7 +124,7 @@ class ScreenHomeVM @Inject constructor(
     }
 
     private fun userFetchFlow() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = userRepository.getMe()
             when (result) {
                 is APIResult.Success -> {

@@ -42,7 +42,8 @@ private fun RegristeredPreview() {
 @Composable
 fun RegisteredEventCardComponents(
     date: String, // Could be "Day dd/MM/yyyy" or "Is happening now",
-    listEvent: List<EventDetail> = emptyList()
+    listEvent: List<EventDetail> = emptyList(),
+    onEventClick: (String) -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
@@ -72,7 +73,8 @@ fun RegisteredEventCardComponents(
                                 organization = "VNTechConf",
                                 logo = eventDetail.logo ?: "",
                             )
-                        }
+                        },
+                        onEventClick = onEventClick
                     )
                 }
             }

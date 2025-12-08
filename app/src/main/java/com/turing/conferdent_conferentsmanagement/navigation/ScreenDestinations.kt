@@ -99,7 +99,18 @@ sealed class Routes(
         fun createRoute() = "check_in_qr"
     }
 
+    data object EventSession: Routes("event_session_screen/{${EVENT_ID}}")
+    {
+        fun createRoute(eventID: String) = "event_session_screen/$eventID"
+    }
+
+    data object CategoryFilter : Routes("category_filter_screen/{${CATEGORY_TYPE}}") {
+        fun createRoute(categoryType: String) = "category_filter_screen/$categoryType"
+    }
+
+
     companion object {
         const val EVENT_ID = "EVENT_ID"
+        const val CATEGORY_TYPE = "CATEGORY_TYPE"
     }
 }

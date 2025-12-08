@@ -126,11 +126,20 @@ fun QuestionSection(
                 vertical = 16.dp
             )
     ) {
-        Text(
-            text = formField.fieldLabel ?: "",
-            fontSize = 16.sp,
-            color = Color.Black
-        )
+        Row {
+            Text(
+                text = formField.fieldLabel ?: "",
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+            if (formField.required == true) {
+                Text(
+                    text = " *",
+                    fontSize = 16.sp,
+                    color = Color(0xFFD46565)
+                )
+            }
+        }
         Spacer(Modifier.height(16.dp))
         Text(
             text = formField.fieldDescription ?: "",

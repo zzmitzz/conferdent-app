@@ -9,7 +9,7 @@ import com.turing.conferdent_conferentsmanagement.R
 object Constants {
 
     const val REQUEST_TIME_OUT = 10000L
-    const val BASE_URL = "http://192.168.31.223:3456"
+    const val BASE_URL = "http://192.168.1.35:3456"
 
     val USER_NAME = stringPreferencesKey("user_name")
     val USER_PASSWORD = stringPreferencesKey("user_password")

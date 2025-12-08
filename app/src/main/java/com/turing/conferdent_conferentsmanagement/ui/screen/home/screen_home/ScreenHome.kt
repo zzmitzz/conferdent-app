@@ -64,7 +64,8 @@ private fun HomePrev() {
 fun ScreenHome(
     onNavSearch: () -> Unit = {},
     viewModel: ScreenHomeVM = hiltViewModel(),
-    onNavEventDetail: (String) -> Unit = {}
+    onNavEventDetail: (String) -> Unit = {},
+    onNavCategoryFilter: (String) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -104,6 +105,9 @@ fun ScreenHome(
         eventState = eventState,
         onNavEventDetail = {
             onNavEventDetail(it)
+        },
+        onNavCategoryFilter = {
+            onNavCategoryFilter(it)
         }
     )
 }
@@ -115,7 +119,8 @@ fun ScreenStateless(
     currentLocation: Pair<String, String>? = null,
     userName: ScreenHomeViewState = ScreenHomeViewState.Loading,
     eventState: ScreenHomeEvent = ScreenHomeEvent.LoadEvent,
-    onNavEventDetail: (String) -> Unit = {}
+    onNavEventDetail: (String) -> Unit = {},
+    onNavCategoryFilter: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -200,7 +205,11 @@ fun ScreenStateless(
             }
         }
         Spacer(modifier = Modifier.height(32.dp))
-        CategoryComponent()
+        CategoryComponent(
+            onCategoryClick = { categoryId ->
+                onNavCategoryFilter(categoryId)
+            }
+        )
         Spacer(modifier = Modifier.height(32.dp))
         Box(
             modifier = Modifier.height(400.dp).fillMaxWidth(),

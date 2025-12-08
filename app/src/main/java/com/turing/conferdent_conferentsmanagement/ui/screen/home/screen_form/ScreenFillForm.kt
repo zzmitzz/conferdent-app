@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +53,7 @@ fun ScreenFillForm(
         viewModel.getFormField(eventID = eventID)
     }
     var showConfirmExit by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val uiState = viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -58,7 +62,11 @@ fun ScreenFillForm(
                     navNextScreen()
 
                 is ScreenFFUIEffect.ShowToast -> {
-
+                    android.widget.Toast.makeText(
+                        context,
+                        effect.message,
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -80,9 +88,9 @@ fun ScreenFillForm(
                     }
                 }
 
-                ScreenFFState.Error -> {
+                is ScreenFFState.Error -> {
                     Text(
-                        text = "Error",
+                        text = result.message ?: "Unknown error",
                         color = Color.Black
                     )
                 }
@@ -108,15 +116,17 @@ fun ScreenFillForm(
                     )
                 }
 
-                ScreenFFState.Error -> {
+                is ScreenFFState.Error -> {
                     Text(
-                        text = "Error",
+                        text = result.message ?: "Unknown error",
                         color = Color.Black
                     )
                 }
 
                 is ScreenFFState.Success -> {
-                    LazyColumn {
+                    LazyColumn(
+                        modifier = Modifier
+                    ) {
                         items(result.formData.fields.size) { index ->
                             QuestionSection(
                                 formField = result.formData.fields[index]
@@ -133,7 +143,26 @@ fun ScreenFillForm(
             }
         },
         submitResponse = {
-            viewModel.submitForm(eventID)
+            when (val result = uiState.value) {
+                is ScreenFFState.Success -> {
+                    // Check if all required questions are answered
+                    val requiredFields = result.formData.fields.filter { it.required == true }
+                    val unansweredRequired = requiredFields.filter { field ->
+                        val answer = viewModel.answerMap[field.Id]
+                        answer.isNullOrBlank()
+                    }
+                    
+                    if (unansweredRequired.isEmpty()) {
+                        viewModel.submitForm(eventID)
+                    } else {
+                        // Show toast or error message for unanswered required questions
+                        viewModel.showValidationError("Please answer all required questions")
+                    }
+                }
+                else -> {
+                    // Do nothing if not in success state
+                }
+            }
         },
 
     )
@@ -150,20 +179,30 @@ fun ScreenFillForm(
                 Text(text = "Are you sure you want to exit without saving?")
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         showConfirmExit = false
                         navBack()
-                    }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Exit", color = Color.Red)
+                    Text("Exit")
                 }
             },
             dismissButton = {
-                TextButton(
+                Button(
                     onClick = {
                         showConfirmExit = false
-                    }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    )
                 ) {
                     Text("Cancel")
                 }
@@ -183,10 +222,14 @@ fun ScreenFillFormStateless(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         headerComponent()
-        questionComponent()
+        Box(modifier = Modifier.weight(1f)){
+            questionComponent()
+        }
         Box(
             modifier = Modifier
-                .background(color = Color.Black, shape = RoundedCornerShape(8.dp))
+                .padding(vertical = 8.dp)
+                .wrapContentSize()
+                .background(color = Color.Black, shape = RoundedCornerShape(16.dp))
                 .padding(
                     horizontal = 32.dp,
                     vertical = 16.dp

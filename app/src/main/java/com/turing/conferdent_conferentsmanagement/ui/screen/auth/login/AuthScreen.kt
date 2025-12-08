@@ -53,6 +53,7 @@ fun AuthScreenStateful(
         onLogin = { username, password ->
             viewModel.doLogin(username, password)
         },
+        errorMessage = if (screenState is LoginScreenVMState.Error) (screenState as LoginScreenVMState.Error).message else null,
         modifier = Modifier.fillMaxSize()
     )
 
@@ -81,6 +82,7 @@ fun AuthScreenStateful(
 fun AuthScreenStateless(
     onLogin: (String, String) -> Unit = { _, _ -> },
     onNavRegister: () -> Unit = {},
+    errorMessage: String? = null,
     modifier: Modifier
 ) {
     ConstraintLayout(
@@ -113,7 +115,8 @@ fun AuthScreenStateless(
         ) {
             LoginComponents(
                 onLogin = onLogin,
-                onNavRegister = onNavRegister
+                onNavRegister = onNavRegister,
+                errorMessage = errorMessage
             )
         }
     }

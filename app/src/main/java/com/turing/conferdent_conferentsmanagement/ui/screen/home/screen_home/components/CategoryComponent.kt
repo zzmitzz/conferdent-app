@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,10 +34,12 @@ import com.turing.conferdent_conferentsmanagement.utils.Constants
 @Composable
 fun CategoryIcon(
     @DrawableRes icon: Int,
-    @StringRes name: Int
+    @StringRes name: Int,
+    onClick: () -> Unit = {}
 ){
     Column(
         modifier = Modifier
+            .clickable { onClick() }
             .background(
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White
@@ -72,7 +75,8 @@ data class CategoryUIWrapper(
 
 @Composable
 fun CategoryComponent(
-    listCategory: List<CategoryUIWrapper> = categoryList
+    listCategory: List<CategoryUIWrapper> = categoryList,
+    onCategoryClick: (String) -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
@@ -100,7 +104,10 @@ fun CategoryComponent(
                 ){
                     CategoryIcon(
                         icon = listCategory[it].icon,
-                        name = listCategory[it].name
+                        name = listCategory[it].name,
+                        onClick = {
+                            onCategoryClick(listCategory[it].id)
+                        }
                     )
                 }
             }
@@ -116,7 +123,7 @@ private fun CatePrev() {
 
 val categoryList = Constants.EventCategory.entries.map {
     CategoryUIWrapper(
-        id = it.ordinal.toString(),
+        id = it.name,
         icon = it.icon,
         name = it.showName,
     )

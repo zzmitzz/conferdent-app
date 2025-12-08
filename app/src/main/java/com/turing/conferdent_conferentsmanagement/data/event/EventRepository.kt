@@ -6,6 +6,7 @@ import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredIDResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
 import com.turing.conferdent_conferentsmanagement.data.event.models.Responses
+import com.turing.conferdent_conferentsmanagement.models.SessionsModel
 import javax.inject.Inject
 
 class EventRepository @Inject constructor(
@@ -146,6 +147,22 @@ class EventRepository @Inject constructor(
     ): APIResult<RegisteredIDResponse> {
         return try {
             val result = eventEndpoint.getRegistrationForm(eventID)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            APIResult.Error(e.message.toString())
+        }
+    }
+
+
+    suspend fun getSessionEvent(
+        eventID: String,
+    ): APIResult<List<SessionsModel>>{
+        return try {
+            val result = eventEndpoint.getEventSession(eventID)
             if (result.isSuccessful && result.body() != null) {
                 APIResult.Success(result.body()!!.data)
             } else {

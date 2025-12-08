@@ -18,8 +18,11 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.turing.conferdent_conferentsmanagement.ui.ConferdentAppState
 import com.turing.conferdent_conferentsmanagement.ui.screen.auth.login.AuthScreenStateful
 import com.turing.conferdent_conferentsmanagement.ui.screen.auth.register.RegisterStateful
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.conferent_session.ConferenceSession
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.conferent_session.ConferenceSessionVM
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventScreen
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVM
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_category_filter.CategoryFilterScreen
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_checkin.ScreenCheckInQR
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_favourite.RegisteredEventScreenStateful
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.ScreenFillForm
@@ -170,6 +173,12 @@ fun NavigationGraph(
                             launchSingleTop = true
                             restoreState = false
                         }
+                    },
+                    onNavCategoryFilter = { categoryType ->
+                        navController.navigate(Routes.CategoryFilter.createRoute(categoryType)) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
                     }
 
                 )
@@ -240,6 +249,9 @@ fun NavigationGraph(
                             launchSingleTop = true
                             restoreState = false
                         }
+                    },
+                    onScheduleClick = {
+                        navController.navigate(Routes.EventSession.createRoute(eventID = eventID!!))
                     }
                 )
             }
@@ -304,6 +316,70 @@ fun NavigationGraph(
                         }
                     },
                     eventID = eventID!!
+                )
+            }
+
+            composable(
+                route = Routes.EventSession.route,
+                arguments = listOf(
+                    navArgument(Routes.EVENT_ID) {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                appState.setVisibleBottomNav(false)
+                val viewModel = hiltViewModel<ConferenceSessionVM>()
+                ConferenceSession(
+                    onNavBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel
+                )
+            }
+
+            composable(
+                route = Routes.CategoryFilter.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                arguments = listOf(
+                    navArgument(Routes.CATEGORY_TYPE) {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                appState.setVisibleBottomNav(false)
+                CategoryFilterScreen(
+                    onNavBack = {
+                        navController.popBackStack()
+                    },
+                    onNavEventDetail = { eventId ->
+                        navController.navigate(Routes.EventDetail.createRoute(eventId)) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
                 )
             }
 

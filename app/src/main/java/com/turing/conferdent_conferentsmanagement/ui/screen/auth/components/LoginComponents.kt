@@ -57,11 +57,17 @@ import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 @Composable
 fun LoginComponents(
     onLogin: (String, String) -> Unit = { _, _ -> },
-    onNavRegister: () -> Unit = {}
+    onNavRegister: () -> Unit = {},
+    errorMessage: String? = null
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    
+    val errorEmailEmpty = stringResource(R.string.error_email_empty)
+    val errorPasswordEmpty = stringResource(R.string.error_password_empty)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,44 +103,61 @@ fun LoginComponents(
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(R.string.username),
+                text = stringResource(R.string.email),
                 fontFamily = JosefinSans,
                 fontWeight = FontWeight.Normal,
                 fontSize = 20.sp
             )
 
         }
-        Box(
-            modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(53.dp),
-                value = username,
-                onValueChange = {
-                    username = it
-                },
-                placeholder = {
-                    Text(
-                        stringResource(R.string.username),
-                        color = Color("#B5B4B4".toColorInt())
-                    )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(100.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    disabledBorderColor = Color.Transparent,
-                    errorBorderColor = Color.Transparent
-                ),
+        Column {
+            Box(
+                modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(53.dp),
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        emailError = null
+                    },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.email),
+                            color = Color("#B5B4B4".toColorInt())
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(100.dp),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = emailError != null,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White,
+                        errorContainerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        errorBorderColor = Color("#FF6B6B".toColorInt())
+                    ),
 
+                    )
+            }
+            if (emailError != null) {
+                Text(
+                    text = emailError!!,
+                    color = Color("#FF6B6B".toColorInt()),
+                    fontSize = 12.sp,
+                    fontFamily = JosefinSans,
+                    modifier = Modifier.padding(start = 45.dp, top = 4.dp)
                 )
+            }
         }
         Box(
             modifier = Modifier
@@ -152,58 +175,87 @@ fun LoginComponents(
             )
 
         }
-        Box(
-            modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(53.dp),
-                value = password,
-                onValueChange = {
-                    password = it
-                },
-                placeholder = {
-                    Text(
-                        stringResource(R.string.password),
-                        color = Color("#B5B4B4".toColorInt()),
-                    )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(100.dp),
-                visualTransformation = if (passwordVisible)
-                    VisualTransformation.None
-                else
-                    PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                trailingIcon = {
-                    val icon = if (passwordVisible)
-                        Icons.Default.Visibility
+        Column {
+            Box(
+                modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(53.dp),
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        passwordError = null
+                    },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.password),
+                            color = Color("#B5B4B4".toColorInt()),
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(100.dp),
+                    visualTransformation = if (passwordVisible)
+                        VisualTransformation.None
                     else
-                        Icons.Default.VisibilityOff
+                        PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    trailingIcon = {
+                        val icon = if (passwordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
 
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = null)
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    errorContainerColor = Color.White,
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    disabledBorderColor = Color.Transparent,
-                    errorBorderColor = Color.Transparent
-                ),
-            )
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    },
+                    isError = passwordError != null,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White,
+                        errorContainerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        errorBorderColor = Color("#FF6B6B".toColorInt())
+                    ),
+                )
+            }
+            if (passwordError != null) {
+                Text(
+                    text = passwordError!!,
+                    color = Color("#FF6B6B".toColorInt()),
+                    fontSize = 12.sp,
+                    fontFamily = JosefinSans,
+                    modifier = Modifier.padding(start = 45.dp, top = 4.dp)
+                )
+            }
         }
         Spacer(
             modifier = Modifier.height(50.dp)
         )
+        
+        // Display general error message (e.g., incorrect credentials)
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = Color("#FF6B6B".toColorInt()),
+                fontSize = 14.sp,
+                fontFamily = JosefinSans,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp)
+            )
+        }
+        
         Box(
             modifier = Modifier.padding(
                 vertical = 10.5.dp,
@@ -212,7 +264,22 @@ fun LoginComponents(
         ) {
             Button(
                 onClick = {
-                    onLogin(username, password)
+                    // Validate fields
+                    var hasError = false
+                    
+                    if (email.isBlank()) {
+                        emailError = errorEmailEmpty
+                        hasError = true
+                    }
+                    
+                    if (password.isBlank()) {
+                        passwordError = errorPasswordEmpty
+                        hasError = true
+                    }
+                    
+                    if (!hasError) {
+                        onLogin(email, password)
+                    }
                 },
                 modifier = Modifier.wrapContentWidth(),
                 colors = ButtonDefaults.buttonColors(

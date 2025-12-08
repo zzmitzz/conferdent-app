@@ -47,6 +47,7 @@ import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
 @Composable
 fun SearchScreen(
     navigateBack: () -> Unit = {},
+    navigateToEventDetail: (String) -> Unit = {},
     viewModel: SearchScreenVM = hiltViewModel()
 ) {
     val searchState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -110,18 +111,21 @@ fun SearchScreen(
                     items(data.size) {
                         Box(
                         ) {
-                            EventCard(data[it].let { it ->
-                                EventCardInformationUI(
-                                    id = it.Id ?: "",
-                                    title = it.name ?: "",
-                                    location = it.location ?: "",
-                                    startTime = it.startTime ?: "",
-                                    endTime = it.endTime ?: "",
-                                    category = it.categoryId ?: "",
-                                    organization = "VNTechConf",
-                                    logo = it.logo ?: "",
-                                )
-                            })
+                            EventCard(
+                                eventCardInformationUI = data[it].let { it ->
+                                    EventCardInformationUI(
+                                        id = it.Id ?: "",
+                                        title = it.name ?: "",
+                                        location = it.location ?: "",
+                                        startTime = it.startTime ?: "",
+                                        endTime = it.endTime ?: "",
+                                        category = it.categoryId ?: "",
+                                        organization = "VNTechConf",
+                                        logo = it.logo ?: "",
+                                    )
+                                },
+                                onEventClick = navigateToEventDetail
+                            )
                         }
                     }
                 }

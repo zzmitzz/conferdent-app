@@ -102,8 +102,7 @@ class MainEventVM @Inject constructor(
                     QRGContents.Type.TEXT,
                     500
                 )
-                val bitmap = qrgEncoder.getBitmap()
-                trySend(bitmap)
+                trySend(qrgEncoder.bitmap)
                 delay(3000)
             }
         }
@@ -111,5 +110,10 @@ class MainEventVM @Inject constructor(
         awaitClose {
 
         }
+    }
+
+
+    fun clearState(){
+        _uiState.value = MainEventVMState.Loading
     }
 }

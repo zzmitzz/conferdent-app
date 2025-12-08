@@ -52,17 +52,20 @@ import java.time.LocalDateTime
 
 @Composable
 fun RegisteredEventScreenStateful(
+    navigateToEventDetail: (String) -> Unit = {},
     viewModel: RegisteredEventVM = hiltViewModel()
 ) {
     val appState by viewModel.uiState.collectAsStateWithLifecycle()
     RegisteredEventScreen(
-        appState
+        appState = appState,
+        navigateToEventDetail = navigateToEventDetail
     )
 }
 
 @Composable
 fun RegisteredEventScreen(
-    appState: RegisteredEventVMState = RegisteredEventVMState.Success()
+    appState: RegisteredEventVMState = RegisteredEventVMState.Success(),
+    navigateToEventDetail: (String) -> Unit = {}
 ) {
     val tabTitles = listOf(
         stringResource(R.string.upcoming),
@@ -108,7 +111,8 @@ fun RegisteredEventScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     RegisteredEventCardComponents(
                         date = "Đang diễn ra",
-                        listEvent = listOf(data)
+                        listEvent = listOf(data),
+                        onEventClick = navigateToEventDetail
                     )
                 }
                 Column(
@@ -200,7 +204,8 @@ fun RegisteredEventScreen(
                                             Column {
                                                 RegisteredEventCardComponents(
                                                     date = eventGroupByDate.keys.elementAt(it).toString(),
-                                                    listEvent = eventGroupByDate.values.elementAt(it)
+                                                    listEvent = eventGroupByDate.values.elementAt(it),
+                                                    onEventClick = navigateToEventDetail
                                                 )
                                                 if(it == eventGroupByDate.size - 1){
                                                     Spacer(modifier = Modifier.height(128.dp))
@@ -238,7 +243,8 @@ fun RegisteredEventScreen(
                                             Column {
                                                 RegisteredEventCardComponents(
                                                     date = eventGroupByDate.keys.elementAt(it).toString(),
-                                                    listEvent = eventGroupByDate.values.elementAt(it)
+                                                    listEvent = eventGroupByDate.values.elementAt(it),
+                                                    onEventClick = navigateToEventDetail
                                                 )
                                                 if(it == eventGroupByDate.size-1){
                                                     Spacer(modifier = Modifier.height(128.dp))

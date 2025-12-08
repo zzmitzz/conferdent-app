@@ -245,7 +245,7 @@ fun CheckboxInput(
     label: String? = null,
     onOptionsSelected: (Set<String>) -> Unit = {}
 ) {
-    val selectedOptions = rememberSaveable { mutableStateOf(initSelectedOptions.toMutableSet()) }
+    var selectedOptions by rememberSaveable { mutableStateOf(initSelectedOptions) }
 
     Column(modifier = modifier) {
         label?.let {
@@ -261,18 +261,18 @@ fun CheckboxInput(
                     .fillMaxWidth()
                     .height(56.dp)
                     .clickable(onClick = {
-                        if (selectedOptions.value.contains(text)) {
-                            selectedOptions.value.remove(text)
+                        selectedOptions = if (selectedOptions.contains(text)) {
+                            selectedOptions - text
                         } else {
-                            selectedOptions.value.add(text)
+                            selectedOptions + text
                         }
-                        onOptionsSelected(selectedOptions.value.toSet())
+                        onOptionsSelected(selectedOptions)
                     })
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
-                    checked = selectedOptions.value.contains(text),
+                    checked = selectedOptions.contains(text),
                     colors = CheckboxDefaults.colors().copy(
                         checkedBorderColor = Color.Black,
                         uncheckedBorderColor = Color.Black,
