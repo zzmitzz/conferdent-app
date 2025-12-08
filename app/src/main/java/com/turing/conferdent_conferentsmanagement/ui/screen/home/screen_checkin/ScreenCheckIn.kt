@@ -30,12 +30,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +51,9 @@ import com.turing.conferdent_conferentsmanagement.data.event.EventDetail
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVM
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVMState
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.QRGenerateState
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.UserProfile
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
+import com.turing.conferdent_conferentsmanagement.utils.UserAccount
 
 
 @Composable
@@ -69,15 +73,19 @@ fun ScreenCheckInQR(
             val data = (uiState as QRGenerateState.Success).qrCode
             ScreenQRCheckIn(
                 onNavBack = navBack,
-                event = (eventState as MainEventVMState.Success).event,
-                bitmap = data
-                )
+                event = viewModel.event,
+                bitmap = data,
+                userProfile = UserAccount.userProfile
+            ) {
+                viewModel.saveBitmap(data)
+            }
         }
+
         else -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 RoseCurveSpinner(
                     color = Color.Black
                 )
@@ -90,9 +98,11 @@ fun ScreenCheckInQR(
 @Composable
 fun ScreenQRCheckIn(
     onNavBack: () -> Unit = {},
-    event: EventDetail,
+    event: EventDetail?,
     bitmap: Bitmap? = null,
-    ) {
+    userProfile: UserProfile?,
+    onSaveBitmap: (Bitmap?) -> Unit = {}
+) {
 
     Box(
         modifier = Modifier
@@ -100,7 +110,7 @@ fun ScreenQRCheckIn(
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = event.thumbnail,
+            model = event?.thumbnail,
             contentDescription = "",
             placeholder = painterResource(id = R.drawable.bg_auth),
             contentScale = ContentScale.Crop
@@ -152,7 +162,7 @@ fun ScreenQRCheckIn(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = event.name ?: "Hội nghị công nghệ số Việt Nam",
+                    text = event?.name ?: "Unknown",
                     fontFamily = JosefinSans,
                     fontWeight = FontWeight.Normal,
                     fontSize = 20.sp,
@@ -162,22 +172,61 @@ fun ScreenQRCheckIn(
                     Modifier.height(20.dp)
                 )
                 Box(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .wrapContentHeight(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     Image(
                         painter = painterResource(R.drawable.qr_bg),
                         contentDescription = ""
                     )
+                    userProfile?.let { userProfile ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter)
+                                .padding(
+                                    top = 22.dp, start = 27.dp
+                                ),
+                        ) {
+                            AsyncImage(
+                                model = userProfile.avatarURL,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 27.dp)
+                                    .clip(CircleShape)
+                                    .size(40.dp),
+                                placeholder = painterResource(R.drawable.img_loading),
+                                error = painterResource(R.drawable.img_loading)
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = userProfile.fullName!!
+                                )
+                                Text(
+                                    text = userProfile.email!!,
+                                    color = Color("#6B6B6B".toColorInt()),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
 
                     if (bitmap != null) {
                         Image(
                             bitmap = bitmap.asImageBitmap(), // Convert Bitmap to ImageBitmap
                             contentDescription = "Generated QR Code",
                             modifier = Modifier
-                                .size(200.dp) // Adjust the size as per your design
-                                .padding(bottom = 16.dp, top = 20.dp, start = 16.dp, end = 16.dp) // Example padding to fit inside qr_bg, adjust as needed
+                                .size(350.dp) // Adjust the size as per your design
+                                .padding(
+                                    bottom = 16.dp,
+                                    top = 80.dp,
+                                    start = 16.dp,
+                                    end = 16.dp
+                                ) // Example padding to fit inside qr_bg, adjust as needed
                         )
                     } else {
                         // Placeholder or loading indicator if bitmap is null
@@ -201,33 +250,22 @@ fun ScreenQRCheckIn(
                     fontSize = 14.sp,
                     color = Color.White
                 )
-                Spacer(
-                    Modifier.height(20.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp), // External padding
-                    horizontalArrangement = Arrangement.Center, // Centers the buttons
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Button 1: Tải mã QR
-                    PillButton(
-                        text = "Tải mã QR",
-                        onClick = { /* Handle click */ },
-                        modifier = Modifier.weight(1f) // Optional: Remove .weight(1f) if you don't want equal sizing
-                    )
-
-                    // Space between buttons
-                    Box(modifier = Modifier.padding(8.dp))
-
-                    // Button 2: Xem form đăng ký
-                    PillButton(
-                        text = "Xem form đăng ký",
-                        onClick = { /* Handle click */ },
-                        modifier = Modifier.weight(1f) // Optional: Remove .weight(1f) if you don't want equal sizing
-                    )
-                }
+//                Spacer(
+//                    Modifier.height(20.dp)
+//                )
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(16.dp), // External padding
+//                    horizontalArrangement = Arrangement.Center, // Centers the buttons
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    PillButton(
+//                        text = "Tải mã QR",
+//                        onClick = { onSaveBitmap(bitmap) },
+//                        modifier = Modifier.weight(1f) // Optional: Remove .weight(1f) if you don't want equal sizing
+//                    )
+//                }
             }
         }
     }
@@ -256,6 +294,8 @@ fun PillButton(
             text = text,
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(vertical = 4.dp) // Increases height slightly,
 
         )
@@ -266,8 +306,16 @@ fun PillButton(
 @Composable
 private fun Preview() {
     ScreenQRCheckIn(
-        event = EventDetail()
-
+        event = EventDetail(),
+        userProfile = UserProfile(
+            email = "email",
+            phone = "phone",
+            fullName = "fullName",
+            dob = "dob",
+            address = "address",
+            bio = "bio",
+            avatarURL = "avatarURL"
+        )
     )
 
 }

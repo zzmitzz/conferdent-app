@@ -1,9 +1,9 @@
 package com.turing.conferdent_conferentsmanagement.ui.screen.home.event
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.util.Log
-import androidmads.library.qrgenearator.QRGContents
-import androidmads.library.qrgenearator.QRGEncoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
@@ -21,6 +21,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import com.turing.conferdent_conferentsmanagement.util.generateStyledQr
+import com.turing.conferdent_conferentsmanagement.utils.saveBitmapToMediaStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 
@@ -40,6 +43,7 @@ sealed class QRGenerateState {
 
 @HiltViewModel
 class MainEventVM @Inject constructor(
+    @ApplicationContext val mContext: Context,
     private val eventRepository: EventRepository,
 ) : ViewModel() {
 
@@ -47,6 +51,7 @@ class MainEventVM @Inject constructor(
     val uiState: StateFlow<MainEventVMState> = _uiState
 
     private var sharedEventID: String? = null
+    var event: EventDetail? = null
     fun fetchEventDetail(
         eventID: String?
     ){
@@ -57,6 +62,7 @@ class MainEventVM @Inject constructor(
             } else {
                 when (val result = eventRepository.getEventDetail(eventID)) {
                     is APIResult.Success -> {
+                        event = result.data
                         _uiState.value = (MainEventVMState.Success(result.data))
                     }
 
@@ -95,20 +101,38 @@ class MainEventVM @Inject constructor(
                     "registeredID" to input,
                     "timeStamp" to System.currentTimeMillis().toString()
                 )
-                val input = Json.encodeToString(encodeJson)
-                val qrgEncoder = QRGEncoder(
-                    input,
-                    null,
-                    QRGContents.Type.TEXT,
-                    500
+                val jsonInput = Json.encodeToString(encodeJson)
+                val bitmap = generateStyledQr(
+                    content = jsonInput,
+                    size = 700,
+                    marginModules = 1,
+                    foregroundStartColor = Color.BLACK,
+                    foregroundEndColor = Color.BLACK,
+                    backgroundTransparent = true,
+                    roundModuleFactor = 0.92f,
+                    logo = null, // optional: add logo bitmap if needed
+                    logoScale = 0.18f
                 )
-                trySend(qrgEncoder.bitmap)
+
+                trySend(bitmap)
                 delay(3000)
             }
         }
 
         awaitClose {
 
+        }
+    }
+
+    fun saveBitmap(bitmap: Bitmap?){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                bitmap?.let {
+                    saveBitmapToMediaStore(mContext, it, )
+                }
+            }catch (e: Exception){
+
+            }
         }
     }
 

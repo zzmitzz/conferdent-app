@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -407,14 +408,20 @@ fun MainEventContent(
             color = Color.Black,
         )
         Spacer(modifier = Modifier.height(16.dp))
-
-
         if (speak.isNotEmpty()) {
             SpeakerListRow(
                 data = speak
             )
-            Spacer(modifier = Modifier.height(16.dp))
+        }else{
+            Text(
+                text = "Không có diễn giả trong sự kiện này",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+
+            )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             text = stringResource(R.string.maps),
             fontSize = 24.sp,

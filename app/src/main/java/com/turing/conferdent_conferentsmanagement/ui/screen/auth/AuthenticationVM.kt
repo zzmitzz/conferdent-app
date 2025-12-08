@@ -8,14 +8,23 @@ import com.turing.conferdent_conferentsmanagement.core.data.IPersistentStorage
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.LoginResponseDetail
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.RegisterResponseDetail
 import com.turing.conferdent_conferentsmanagement.data.auth.repository.AuthRepository
+import com.turing.conferdent_conferentsmanagement.data.auth.repository.UserRepository
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.SettingVMState
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.UserProfile
 import com.turing.conferdent_conferentsmanagement.utils.Constants
+import com.turing.conferdent_conferentsmanagement.utils.DateTimeFormatPattern
+import com.turing.conferdent_conferentsmanagement.utils.UserAccount
+import com.turing.conferdent_conferentsmanagement.utils.parseLocalDateToFormat
+import com.turing.conferdent_conferentsmanagement.utils.parseTimeFromServer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
@@ -46,7 +55,8 @@ sealed class RegisterScreenVMState {
 class AuthenticationVM
 @Inject constructor(
     private val authRepository: AuthRepository,
-    private val persistentStorage: IPersistentStorage
+    private val persistentStorage: IPersistentStorage,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private var _uiState: MutableStateFlow<LoginScreenVMState> =
         MutableStateFlow(LoginScreenVMState.Initial)
@@ -75,7 +85,7 @@ class AuthenticationVM
 
     fun doLogin(email: String, password: String) {
         updateState(LoginScreenVMState.Loading)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = authRepository.doLogin(email, password)
             delay(2000L)
             when (result) {
@@ -83,6 +93,7 @@ class AuthenticationVM
                     persistentStorage.saveKeySuspend(Constants.USER_TOKEN, result.data.accessToken)
                     persistentStorage.saveKeySuspend(Constants.USER_NAME, email)
                     persistentStorage.saveKeySuspend(Constants.USER_PASSWORD, password)
+                    getUserProfile()
                     updateState(LoginScreenVMState.Success(result.data))
                 }
 
@@ -100,7 +111,7 @@ class AuthenticationVM
 
     fun doRegister(fullName: String, email: String, password: String, confirmPassword: String) {
         updateRegisterState(RegisterScreenVMState.Loading)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO){
             if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 updateRegisterState(
                     RegisterScreenVMState.ErrorInput(
@@ -125,6 +136,30 @@ class AuthenticationVM
                 }
             }
 
+        }
+    }
+
+    suspend fun getUserProfile() {
+        withContext(Dispatchers.IO){
+            val result = userRepository.getMe()
+            if (result is APIResult.Success) {
+                val user = result.data
+
+                UserAccount.userProfile = UserProfile(
+                    email = user.email ?: "Chưa cung cấp",
+                    phone = user.phone ?: "Chưa cung cấp",
+                    fullName = user.fullName,
+                    dob = user.dob?.let {
+                        parseLocalDateToFormat(
+                            parseTimeFromServer(user.dob),
+                            DateTimeFormatPattern.PATTERN_SERVER
+                        )
+                    } ?: "Chưa cung cấp",
+                    address = user.address ?: "Chưa cung cấp",
+                    bio = user.bio?: "Chưa cung cấp",
+                    avatarURL = user.avatar
+                )
+            }
         }
     }
 }
