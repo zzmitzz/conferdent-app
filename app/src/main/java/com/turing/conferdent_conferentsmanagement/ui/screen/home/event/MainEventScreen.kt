@@ -74,7 +74,9 @@ fun MainEventScreen(
     navigateRegister: () -> Unit = {},
     onCheckIn: () -> Unit = {},
     onMapClick: () -> Unit = {},
-    onScheduleClick: () -> Unit = {}
+    onScheduleClick: () -> Unit = {},
+    onSpeakerClick: (String) -> Unit = {},
+    onResourceClick: () -> Unit = {}
 ) {
     val appState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -99,6 +101,7 @@ fun MainEventScreen(
                     navigateRegister = navigateRegister,
                     speakerList = ((appState) as MainEventVMState.Success).event.speakers.map {
                         SpeakerUIModel(
+                            id = it.id ?: 0,
                             name = it.fullName ?: "Not provided",
                             avatar = it.photoUrl ?: "Not provided",
                             workingAt = it.professionalTitle ?: ""
@@ -121,7 +124,9 @@ fun MainEventScreen(
                     },
                     onScheduleClick = {
                         onScheduleClick()
-                    }
+                    },
+                    onSpeakerClick = onSpeakerClick,
+                    onResourceClick = onResourceClick
                 )
             }
 
@@ -153,7 +158,9 @@ private fun MainEventDetailScreen(
     navigateRegister: () -> Unit = {},
     onCheckIn: () -> Unit = {},
     onMapClick: () -> Unit = {},
-    onScheduleClick: () -> Unit = {}
+    onScheduleClick: () -> Unit = {},
+    onSpeakerClick: (String) -> Unit = {},
+    onResourceClick: () -> Unit = {}
 ) {
 
 
@@ -183,9 +190,11 @@ private fun MainEventDetailScreen(
             modifier = Modifier.fillMaxWidth(),
             startTime = eventStart,
             endTime = eventEnd,
+            isEventOnGoing = isEventOnGoing,
             eventThumbnail = event.thumbnail
                 ?: "https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg?cs=srgb&dl=pexels-eberhardgross-1421903.jpg&fm=jpg",
-            navigateBack = navigateBack
+            navigateBack = navigateBack,
+            onResourceClick = onResourceClick
         )
 
         MainEventContent(
@@ -194,7 +203,8 @@ private fun MainEventDetailScreen(
                 .weight(1f),
             speak = speakerList,
             organizerData = organizerData,
-            event = event
+            event = event,
+            onSpeakerClick = onSpeakerClick
         )
         if (!isEventOnGoing) {
             RegistrationCta(
@@ -221,7 +231,7 @@ private fun MainEventDetailScreen(
                 },
                 onScheduleClick = {
                     onScheduleClick()
-                }
+                },
             )
         }
     }
@@ -254,7 +264,8 @@ fun MainEventContent(
     modifier: Modifier,
     event: EventDetail,
     speak: List<SpeakerUIModel> = emptyList(),
-    organizerData: OrganizerUIModel? = null
+    organizerData: OrganizerUIModel? = null,
+    onSpeakerClick: (String) -> Unit = {}
 ) {
 
     val currentLatLng by remember {
@@ -410,7 +421,8 @@ fun MainEventContent(
         Spacer(modifier = Modifier.height(16.dp))
         if (speak.isNotEmpty()) {
             SpeakerListRow(
-                data = speak
+                data = speak,
+                onSpeakerClick = onSpeakerClick
             )
         }else{
             Text(
@@ -453,7 +465,9 @@ fun EventHeader(
     modifier: Modifier,
     startTime: LocalDateTime,
     endTime: LocalDateTime,
+    isEventOnGoing: Boolean = true,
     eventThumbnail: String, // should be URL
+    onResourceClick: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
     Box(
@@ -481,8 +495,10 @@ fun EventHeader(
         ) {
             HeaderComponents(
                 modifier = Modifier,
+                isEventOnGoing = isEventOnGoing,
                 navigateBack = navigateBack,
-                onMoreClick = {}
+                onMoreClick = {},
+                onResourceClick = onResourceClick
             )
 
             CountDownTimeComponents(

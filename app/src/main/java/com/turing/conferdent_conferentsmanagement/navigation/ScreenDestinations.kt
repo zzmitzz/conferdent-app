@@ -108,9 +108,18 @@ sealed class Routes(
         fun createRoute(categoryType: String) = "category_filter_screen/$categoryType"
     }
 
+    data object SpeakerDetail : Routes("speaker_detail_screen/{${SPEAKER_ID}}/{${EVENT_ID}}") {
+        fun createRoute(speakerId: String, eventId: String) = "speaker_detail_screen/$speakerId/$eventId"
+    }
+
+    data object ResourceScreen : Routes("resource_screen/{${EVENT_ID}}") {
+        fun createRoute(eventId: String) = "resource_screen/$eventId"
+    }
+
 
     companion object {
         const val EVENT_ID = "EVENT_ID"
         const val CATEGORY_TYPE = "CATEGORY_TYPE"
+        const val SPEAKER_ID = "SPEAKER_ID"
     }
 }

@@ -6,6 +6,7 @@ import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredIDResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
 import com.turing.conferdent_conferentsmanagement.data.event.models.Responses
+import com.turing.conferdent_conferentsmanagement.data.event.models.ResourceItem
 import com.turing.conferdent_conferentsmanagement.models.SessionsModel
 import javax.inject.Inject
 
@@ -173,4 +174,33 @@ class EventRepository @Inject constructor(
         }
     }
 
+    suspend fun getSpeakerSessions(
+        speakerId: String
+    ): APIResult<SpeakerSessionsResponse> {
+        return try {
+            val result = eventEndpoint.getSpeakerSessions(speakerId)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            APIResult.Error(e.message.toString())
+        }
+    }
+
+    suspend fun getEventResources(
+        eventId: String
+    ): APIResult<List<ResourceItem>> {
+        return try {
+            val result = eventEndpoint.getEventResources(eventId)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data.data)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            APIResult.Error(e.message.toString())
+        }
+    }
 }

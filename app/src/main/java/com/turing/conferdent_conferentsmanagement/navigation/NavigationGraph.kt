@@ -28,6 +28,7 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_favourit
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.ScreenFillForm
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_home.ScreenHome
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_notification.ScreenNotification
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_resource.ScreenResourceEvent
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_search.SearchScreen
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.ScreenSetting
 
@@ -252,6 +253,18 @@ fun NavigationGraph(
                     },
                     onScheduleClick = {
                         navController.navigate(Routes.EventSession.createRoute(eventID = eventID!!))
+                    },
+                    onSpeakerClick = { speakerId ->
+                        navController.navigate(Routes.SpeakerDetail.createRoute(speakerId, eventID!!)) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    },
+                    onResourceClick = {
+                        navController.navigate(Routes.ResourceScreen.createRoute(eventID!!)) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
                     }
                 )
             }
@@ -379,6 +392,97 @@ fun NavigationGraph(
                             launchSingleTop = true
                             restoreState = false
                         }
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.SpeakerDetail.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                arguments = listOf(
+                    navArgument(Routes.SPEAKER_ID) {
+                        type = NavType.StringType
+                    },
+                    navArgument(Routes.EVENT_ID) {
+                        type = NavType.StringType
+                    }
+                )
+            ) { entry ->
+                appState.setVisibleBottomNav(false)
+                val speakerId = entry.arguments?.getString(Routes.SPEAKER_ID)
+                val eventId = entry.arguments?.getString(Routes.EVENT_ID)
+                val viewModel: com.turing.conferdent_conferentsmanagement.ui.screen.home.speaker.SpeakerVM = hiltViewModel()
+                com.turing.conferdent_conferentsmanagement.ui.screen.home.speaker.ScreenSpeaker(
+                    speakerId = speakerId,
+                    eventId = eventId,
+                    viewModel = viewModel,
+                    navigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.ResourceScreen.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                arguments = listOf(
+                    navArgument(Routes.EVENT_ID) {
+                        type = NavType.StringType
+                    }
+                )
+            ) { entry ->
+                appState.setVisibleBottomNav(false)
+                val eventId = entry.arguments?.getString(Routes.EVENT_ID)
+                ScreenResourceEvent(
+                    eventId = eventId,
+                    navigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

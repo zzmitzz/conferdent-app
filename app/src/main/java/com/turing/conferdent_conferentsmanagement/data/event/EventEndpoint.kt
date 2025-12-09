@@ -4,6 +4,7 @@ import com.turing.conferdent_conferentsmanagement.data.event.models.RegisteredID
 import com.turing.conferdent_conferentsmanagement.data.common.BaseResponse
 import com.turing.conferdent_conferentsmanagement.data.event.models.FormData
 import com.turing.conferdent_conferentsmanagement.data.event.models.RegistrationResponseSubmit
+import com.turing.conferdent_conferentsmanagement.data.event.models.ResourceListWrapper
 import com.turing.conferdent_conferentsmanagement.models.SessionsModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -73,6 +74,33 @@ data class EventListWrapper(
     @SerialName("limit") val limit: Int = 0,
 )
 
+@Serializable
+data class SpeakerSessionItem(
+    @SerialName("id") var id: Int? = null,
+    @SerialName("event_id") var eventId: String? = null,
+    @SerialName("title") var title: String? = null,
+    @SerialName("description") var description: String? = null,
+    @SerialName("start_time") var startTime: String? = null,
+    @SerialName("end_time") var endTime: String? = null,
+    @SerialName("place") var place: String? = null,
+    @SerialName("capacity") var capacity: Int? = null,
+    @SerialName("is_active") var isActive: Boolean? = null,
+    @SerialName("session_type") var sessionType: String? = null,
+    @SerialName("tags") var tags: ArrayList<String> = arrayListOf(),
+    @SerialName("created_at") var createdAt: String? = null,
+    @SerialName("updated_at") var updatedAt: String? = null,
+    @SerialName("speaker_role") var speakerRole: String? = null,
+    @SerialName("speaking_order") var speakingOrder: Int? = null,
+    @SerialName("speaking_duration_minutes") var speakingDurationMinutes: Int? = null
+)
+
+@Serializable
+data class SpeakerSessionsResponse(
+    @SerialName("speaker") val speaker: EventSpeakers,
+    @SerialName("sessions") val sessions: List<SpeakerSessionItem> = emptyList(),
+    @SerialName("total") val total: Int = 0
+)
+
 interface EventEndpoint {
     @GET("/registrations/events")
     suspend fun getEvents(
@@ -116,4 +144,19 @@ interface EventEndpoint {
     suspend fun getEventSession(
         @Path("id") id: String
     ) : Response<BaseResponse<List<SessionsModel>>>
+
+    @GET("/registrations/events/speakers/{speakerId}")
+    suspend fun getSpeakerDetail(
+        @Path("speakerId") speakerId: String
+    ): Response<BaseResponse<EventSpeakers>>
+
+    @GET("/registrations/events/speakers/{speakerId}/sessions")
+    suspend fun getSpeakerSessions(
+        @Path("speakerId") speakerId: String
+    ): Response<BaseResponse<SpeakerSessionsResponse>>
+
+    @GET("/registrations/resources/event/{eventId}")
+    suspend fun getEventResources(
+        @Path("eventId") eventId: String
+    ): Response<BaseResponse<ResourceListWrapper>>
 }

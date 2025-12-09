@@ -55,7 +55,9 @@ private fun HeaderPrev() {
 @Composable
 fun HeaderComponents(
     modifier: Modifier,
+    isEventOnGoing: Boolean = true,
     navigateBack: () -> Unit = {},
+    onResourceClick: () -> Unit = {},
     onMoreClick: () -> Unit = {}
 ) {
     Row(
@@ -94,23 +96,48 @@ fun HeaderComponents(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp)
+        Row(
+
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_more),
-                contentDescription = null,
+            if(isEventOnGoing){
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_resource),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                onResourceClick()
+                            }
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+            }
+            Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .clickable {
-                        onMoreClick()
-                    }
-            )
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_more),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onMoreClick()
+                        }
+                )
+            }
         }
     }
 }
@@ -135,11 +162,13 @@ fun InfoRowMain(icon: Int, text: String) {
 
 @Composable
 fun ProfileCard(
-    speakerUIModel: SpeakerUIModel
+    speakerUIModel: SpeakerUIModel,
+    onClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
-            .wrapContentSize(),
+            .wrapContentSize()
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Profile image
@@ -176,7 +205,10 @@ fun ProfileCard(
 }
 
 @Composable
-fun SpeakerListRow(data: List<SpeakerUIModel>){
+fun SpeakerListRow(
+    data: List<SpeakerUIModel>,
+    onSpeakerClick: (String) -> Unit = {}
+){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -184,7 +216,10 @@ fun SpeakerListRow(data: List<SpeakerUIModel>){
         ,
     ) {
         data.forEach {
-            ProfileCard(speakerUIModel = it)
+            ProfileCard(
+                speakerUIModel = it,
+                onClick = { onSpeakerClick(it.id.toString()) }
+            )
             Spacer(modifier = Modifier.width(24.dp))
         }
     }
@@ -282,7 +317,7 @@ fun RegistrationHoldingCta(
                 containerColor = Color(0xFF303030)  // Dark gray/charcoal color
             ),
             // Padding inside the button
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -292,14 +327,14 @@ fun RegistrationHoldingCta(
                 Image(
                     painter = painterResource(R.drawable.ic_check_in),
                     contentDescription = "Check-in", // For accessibility
-                    modifier = Modifier.size(20.dp) // Control icon size
+                    modifier = Modifier.size(18.dp) // Control icon size
                 )
-                Spacer(modifier = Modifier.width(8.dp)) // Add spacer here
+                Spacer(modifier = Modifier.width(4.dp)) // Add spacer here
                 Text(
                     text = "Check-in",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     maxLines = 1, // Single line
                     overflow = TextOverflow.Ellipsis // Three dots on overflow
                 )
@@ -315,7 +350,7 @@ fun RegistrationHoldingCta(
                 containerColor = Color(0xFF303030)  // Dark gray/charcoal color
             ),
             // Padding inside the button
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -325,14 +360,14 @@ fun RegistrationHoldingCta(
                 Image(
                     painter = painterResource(R.drawable.ic_map),
                     contentDescription = "Bản đồ", // For accessibility
-                    modifier = Modifier.size(20.dp) // Control icon size
+                    modifier = Modifier.size(18.dp) // Control icon size
                 )
-                Spacer(modifier = Modifier.width(8.dp)) // Add spacer here
+                Spacer(modifier = Modifier.width(4.dp)) // Add spacer here
                 Text(
                     text = "Bản đồ",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     maxLines = 1, // Single line
                     overflow = TextOverflow.Ellipsis // Three dots on overflow
                 )
@@ -349,7 +384,7 @@ fun RegistrationHoldingCta(
                 containerColor = Color(0xFF303030)  // Dark gray/charcoal color
             ),
             // Padding inside the button
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -359,19 +394,21 @@ fun RegistrationHoldingCta(
                 Image(
                     painter = painterResource(R.drawable.ic_calendar),
                     contentDescription = "Lịch trình", // For accessibility
-                    modifier = Modifier.size(20.dp) // Control icon size
+                    modifier = Modifier.size(18.dp) // Control icon size
                 )
-                Spacer(modifier = Modifier.width(8.dp)) // Add spacer here
+                Spacer(modifier = Modifier.width(4.dp)) // Add spacer here
                 Text(
-                    text = "Lịch trình",
+                    text = "Lịch",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     maxLines = 1, // Single line
                     overflow = TextOverflow.Ellipsis // Three dots on overflow
                 )
             }
         }
+
+
     }
 }
 
