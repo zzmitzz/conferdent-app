@@ -57,6 +57,7 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.component
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.InfoRowMain
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.RegistrationCta
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.RegistrationHoldingCta
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.RegistrationHoldingNotRegistered
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.components.SpeakerListRow
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.models.OrganizerUIModel
 import com.turing.conferdent_conferentsmanagement.ui.theme.JosefinSans
@@ -221,18 +222,24 @@ private fun MainEventDetailScreen(
                 )
             )
         } else {
-            RegistrationHoldingCta(
-                modifier = Modifier.fillMaxWidth(),
-                onCheckIn = {
-                    onCheckIn()
-                },
-                onMapClick = {
-                    onMapClick()
-                },
-                onScheduleClick = {
-                    onScheduleClick()
-                },
-            )
+            if(event.isRegistered){
+                RegistrationHoldingCta(
+                    modifier = Modifier.fillMaxWidth(),
+                    isMapAvail = event.maps != null,
+                    onCheckIn = {
+                        onCheckIn()
+                    },
+                    onMapClick = {
+                        onMapClick()
+                    },
+                    onScheduleClick = {
+                        onScheduleClick()
+                    },
+                )
+            }else{
+                RegistrationHoldingNotRegistered()
+            }
+
         }
     }
 }

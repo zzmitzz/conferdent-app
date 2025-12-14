@@ -1,5 +1,6 @@
 package com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.turing.conferdent_conferentsmanagement.core.data.IPersistentStorage
@@ -76,10 +77,10 @@ class SettingViewModel @Inject constructor(
             isEditMode = !(_state.value as SettingVMState.Success).isEditMode
         )
     }
-    fun updateUserProfile(newData: UserProfile){
+    fun updateUserProfile(newData: UserProfile, context: Context){
         viewModelScope.launch(Dispatchers.IO ) {
             _state.value = SettingVMState.Loading
-            val result = userRepository.updateProfile(newData)
+            val result = userRepository.updateProfile(newData,context)
             if (result is APIResult.Success) {
                 getUserProfile()
             } else {
@@ -95,17 +96,17 @@ class SettingViewModel @Inject constructor(
                 val user = result.data
                 _state.value = SettingVMState.Success(
                     userProfile = UserProfile(
-                        email = user.email ?: "Chưa cung cấp",
-                        phone = user.phone ?: "Chưa cung cấp",
+                        email = user.email,
+                        phone = user.phone,
                         fullName = user.fullName,
                         dob = user.dob?.let {
                             parseLocalDateToFormat(
                                 parseTimeFromServer(user.dob),
                                 DateTimeFormatPattern.PATTERN_SERVER
                             )
-                        } ?: "Chưa cung cấp",
-                        address = user.address ?: "Chưa cung cấp",
-                        bio = user.bio?: "Chưa cung cấp",
+                        },
+                        address = user.address ,
+                        bio = user.bio,
                         avatarURL = user.avatar
                     ),
                     isNotificationEnabled = false,

@@ -86,20 +86,24 @@ class AuthenticationVM
     fun doLogin(email: String, password: String) {
         updateState(LoginScreenVMState.Loading)
         viewModelScope.launch(Dispatchers.IO) {
-            val result = authRepository.doLogin(email, password)
-            delay(2000L)
-            when (result) {
-                is APIResult.Success -> {
-                    persistentStorage.saveKeySuspend(Constants.USER_TOKEN, result.data.accessToken)
-                    persistentStorage.saveKeySuspend(Constants.USER_NAME, email)
-                    persistentStorage.saveKeySuspend(Constants.USER_PASSWORD, password)
-                    getUserProfile()
-                    updateState(LoginScreenVMState.Success(result.data))
-                }
+            try {
+                val result = authRepository.doLogin(email, password)
+                delay(2000L)
+                when (result) {
+                    is APIResult.Success -> {
+                        persistentStorage.saveKeySuspend(Constants.USER_TOKEN, result.data.accessToken)
+                        persistentStorage.saveKeySuspend(Constants.USER_NAME, email)
+                        persistentStorage.saveKeySuspend(Constants.USER_PASSWORD, password)
+                        getUserProfile()
+                        updateState(LoginScreenVMState.Success(result.data))
+                    }
 
-                is APIResult.Error -> {
-                    updateState(LoginScreenVMState.Error(result.message))
+                    is APIResult.Error -> {
+                        updateState(LoginScreenVMState.Error(result.message))
+                    }
                 }
+            }catch (e: Exception){
+                updateState(LoginScreenVMState.Error(e.message ?: "Unknown error"))
             }
 
         }

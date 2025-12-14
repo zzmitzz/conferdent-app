@@ -73,8 +73,6 @@ class MainEventVM @Inject constructor(
             }
         }
     }
-
-
     var qrScreenState = MutableStateFlow<QRGenerateState>(QRGenerateState.Loading)
 
     fun getRegistration(){

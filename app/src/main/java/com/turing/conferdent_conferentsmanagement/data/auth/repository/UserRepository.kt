@@ -1,5 +1,9 @@
 package com.turing.conferdent_conferentsmanagement.data.auth.repository
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.RegistrationDetail
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.UserRepositoryService
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
@@ -9,6 +13,7 @@ import com.turing.conferdent_conferentsmanagement.utils.parseToRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
@@ -24,14 +29,13 @@ class UserRepository @Inject constructor(
             }
         }
     }
-    suspend fun updateProfile(userProfile: UserProfile): APIResult<String> {
+    suspend fun updateProfile(userProfile: UserProfile, context: Context): APIResult<String> {
         return withContext(Dispatchers.IO) {
             val response = userRepositoryService.updateProfile(
                 dob = userProfile.dob!!.parseToRequestBody(),
                 phone = userProfile.phone!!.parseToRequestBody(),
                 bio = userProfile.bio!!.parseToRequestBody(),
-//                avatar = getFileFromUri(userProfile.avatarURL!!)?.parseToMultiplePart("avatar") ?: null,
-//                avatar = null,
+                avatar = if(userProfile.avatarURL != null) getFileFromUri(context, userProfile.avatarURL.toUri())?.parseToMultiplePart("avatar") else null,
                 address = userProfile.address!!.parseToRequestBody()
             )
             return@withContext if (response.isSuccessful) {
@@ -43,11 +47,17 @@ class UserRepository @Inject constructor(
     }
 
 
-    private fun getFileFromUri(uri: String): File?{
+    @SuppressLint("Recycle")
+    fun getFileFromUri(context: Context, uri: Uri, fileName: String = "${System.currentTimeMillis()}_temp_file.png"): File?{
         try {
-            val file = File(uri)
-            return file
-        } catch (e: Exception) {
+            val inputStream = context.contentResolver.openInputStream(uri)
+                ?: throw IOException("Could not open input stream")
+            val tempFile = File(context.cacheDir, fileName)
+            tempFile.outputStream().use { output ->
+                inputStream.copyTo(output)
+            }
+            return tempFile
+        }catch (e: Exception){
             return null
         }
     }

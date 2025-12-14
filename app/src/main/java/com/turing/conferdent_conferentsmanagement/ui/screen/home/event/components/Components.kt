@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -292,9 +293,20 @@ fun RegistrationCta(
     }
 }
 
+@Preview
+@Composable
+fun RegistrationHoldingNotRegistered(){
+    Text(
+        text = "Bạn chưa đăng kí hội nghị này, vui lòng liên hệ BTC",
+        modifier = Modifier.fillMaxWidth().background(Color.White).padding(vertical = 24.dp),
+        textAlign = TextAlign.Center
+    )
+}
+
 @Composable
 fun RegistrationHoldingCta(
     modifier: Modifier,
+    isMapAvail: Boolean = false, // should be boolean
     onCheckIn: () -> Unit = {},
     onMapClick: () -> Unit = {},
     onScheduleClick: () -> Unit = {},
@@ -342,9 +354,13 @@ fun RegistrationHoldingCta(
         }
         Button(
             onClick = {
-                onMapClick()
+                if(isMapAvail){
+                    onMapClick()
+                }
             },
-            modifier = Modifier.weight(1f), // Distribute width equally
+            modifier = Modifier.weight(1f).alpha(
+                if(isMapAvail) 1f else 0.5f
+            ), // Distribute width equally
             shape = RoundedCornerShape(50.dp), // Creates the "pill" shape
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF303030)  // Dark gray/charcoal color

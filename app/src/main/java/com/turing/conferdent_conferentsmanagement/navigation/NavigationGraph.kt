@@ -1,10 +1,15 @@
 package com.turing.conferdent_conferentsmanagement.navigation
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -31,6 +36,8 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_notifica
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_resource.ScreenResourceEvent
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_search.SearchScreen
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.ScreenSetting
+import androidx.core.net.toUri
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVMState
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -38,6 +45,9 @@ fun NavigationGraph(
     navController: NavHostController,
     appState: ConferdentAppState
 ) {
+
+    val context: Context = LocalContext.current
+
     AnimatedNavHost(
         navController = navController,
         startDestination = "auth"
@@ -84,13 +94,7 @@ fun NavigationGraph(
                         }
                     },
                     onNavHome = {
-                        navController.navigate(Routes.Home.createRoute()) {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
+                        appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
                     }
                 )
             }
@@ -140,30 +144,31 @@ fun NavigationGraph(
         ) {
             composable(
                 route = Routes.Home.createRoute(),
-                enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
-                },
-                exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
-                },
-                popEnterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
-                },
-                popExitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
-                }) {
+//                enterTransition = {
+//                    slideIntoContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Right,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                exitTransition = {
+//                    slideOutOfContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Left,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                popEnterTransition = {
+//                    slideIntoContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Left,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                popExitTransition = {
+//                    slideOutOfContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Right,
+//                        animationSpec = tween(500)
+//                    )
+//                }
+                ) {
                 appState.setVisibleBottomNav(true)
                 ScreenHome(
                     onNavSearch = {
@@ -195,30 +200,30 @@ fun NavigationGraph(
 
             composable(
                 route = Routes.EventDetail.route,
-                enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
-                },
-                exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
-                },
-                popEnterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(500)
-                    )
-                },
-                popExitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
-                },
+//                enterTransition = {
+//                    slideIntoContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Right,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                exitTransition = {
+//                    slideOutOfContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Left,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                popEnterTransition = {
+//                    slideIntoContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Left,
+//                        animationSpec = tween(500)
+//                    )
+//                },
+//                popExitTransition = {
+//                    slideOutOfContainer(
+//                        AnimatedContentTransitionScope.SlideDirection.Right,
+//                        animationSpec = tween(500)
+//                    )
+//                },
                 arguments = listOf(
                     navArgument(Routes.EVENT_ID) {
                         type = NavType.StringType
@@ -249,6 +254,17 @@ fun NavigationGraph(
                         {
                             launchSingleTop = true
                             restoreState = false
+                        }
+                    },
+                    onMapClick = {
+                        try {
+                            val url = (viewModel.uiState.value as MainEventVMState.Success).event.maps
+                            url?.let {
+                                val intent = Intent(Intent.ACTION_VIEW, it.toUri())
+                                context.startActivity(intent)
+                            }
+                        }catch (e: Exception){
+
                         }
                     },
                     onScheduleClick = {
@@ -523,13 +539,7 @@ fun NavigationGraph(
                 appState.setVisibleBottomNav(true)
                 ScreenSetting(
                     resetToLogin = {
-                        navController.navigate(Routes.Login.createRoute()) {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
+                        appState.navigateToTopLevelDestination(TopLevelDestination.Auth)
                     },
                     viewModel = hiltViewModel()
                 )

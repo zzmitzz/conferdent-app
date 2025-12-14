@@ -9,7 +9,7 @@
     </base-config>
 
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">192.168.1.40</domain>
+        <domain includeSubdomains="false">192.168.1.44</domain>
         <domain includeSubdomains="false">192.168.31.223</domain>
         <domain includeSubdomains="false">192.168.1.35</domain>
         <domain includeSubdomains="false">0.0.0.0</domain>

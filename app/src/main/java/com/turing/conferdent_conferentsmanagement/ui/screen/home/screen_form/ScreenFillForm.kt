@@ -1,6 +1,7 @@
 package com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form
 
 import android.R
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.component
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.components.HeaderForm
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.components.QuestionSection
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_form.data.AnswerType
+import kotlinx.coroutines.flow.collectLatest
 
 
 @Composable
@@ -52,9 +54,19 @@ fun ScreenFillForm(
     LaunchedEffect(Unit) {
         viewModel.getFormField(eventID = eventID)
     }
+
+
     var showConfirmExit by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val uiState = viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collectLatest { effect ->
+            if (effect is ScreenFFUIEffect.NavigateToNextScreen)
+                navNextScreen()
+            else if (effect is ScreenFFUIEffect.ShowToast)
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -98,8 +110,10 @@ fun ScreenFillForm(
                 is ScreenFFState.Success -> {
                     HeaderForm(
                         modifier = Modifier,
-                        formTitle = result.formData.title ?: "NOT FOUND",
-                        formDesc = result.formData.title ?: "NOT FOUND",
+                        formTitle = result.formData.title
+                            ?: "Form không tồn tại, vui lòng thử lại sau",
+                        formDesc = result.formData.description
+                            ?: "Form không tồn tại, vui lòng thử lại sau",
                     ) {
                         showConfirmExit = !showConfirmExit
                     }
@@ -146,12 +160,12 @@ fun ScreenFillForm(
             when (val result = uiState.value) {
                 is ScreenFFState.Success -> {
                     // Check if all required questions are answered
-                    val requiredFields = result.formData.fields.filter { it.required == true }
+                    val requiredFields = result.formData.fields
                     val unansweredRequired = requiredFields.filter { field ->
                         val answer = viewModel.answerMap[field.Id]
                         answer.isNullOrBlank()
                     }
-                    
+
                     if (unansweredRequired.isEmpty()) {
                         viewModel.submitForm(eventID)
                     } else {
@@ -159,13 +173,14 @@ fun ScreenFillForm(
                         viewModel.showValidationError("Please answer all required questions")
                     }
                 }
+
                 else -> {
                     // Do nothing if not in success state
                 }
             }
         },
 
-    )
+        )
 
     if (showConfirmExit) {
         AlertDialog(
@@ -222,7 +237,7 @@ fun ScreenFillFormStateless(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         headerComponent()
-        Box(modifier = Modifier.weight(1f)){
+        Box(modifier = Modifier.weight(1f)) {
             questionComponent()
         }
         Box(

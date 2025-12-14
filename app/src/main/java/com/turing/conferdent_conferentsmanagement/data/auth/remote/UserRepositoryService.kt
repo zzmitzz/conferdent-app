@@ -37,6 +37,6 @@ interface UserRepositoryService {
         @Part("phone") phone: RequestBody,
         @Part("address") address: RequestBody,
         @Part("bio") bio: RequestBody,
-//        @Part avatar: MultipartBody.Part? // The file part is nullable if the avatar is optional
+        @Part avatar: MultipartBody.Part?
     ): Response<BaseResponseState>
 }

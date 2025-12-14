@@ -1,5 +1,6 @@
 package com.turing.conferdent_conferentsmanagement.utils
 
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -19,6 +20,6 @@ enum class MediaType(val string: String) {
 }
 
 fun File.parseToMultiplePart(field: String) : MultipartBody.Part {
-    val requestFile = this.asRequestBody(MediaType.IMAGE.string.toMediaTypeOrNull())
-    return  MultipartBody.Part.createFormData(field, this.name, requestFile)
+    val requestFile = this.asRequestBody("image/png".toMediaType())
+    return MultipartBody.Part.createFormData(field, name, requestFile)
 }

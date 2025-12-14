@@ -63,7 +63,8 @@ data class EventDetail(
     @SerialName("updated_at") val updatedAt: String? = null,
     @SerialName("is_registered") val isRegistered: Boolean = false,
     @SerialName("organizer") val organizers: EventOrganizer? = null,
-    @SerialName("speakers") val speakers: List<EventSpeakers> = emptyList()
+    @SerialName("speakers") val speakers: List<EventSpeakers> = emptyList(),
+    @SerialName("maps") val maps: String? = null
     )
 
 @Serializable

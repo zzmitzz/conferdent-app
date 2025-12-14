@@ -23,6 +23,13 @@ enum class TopLevelDestination(
     @StringRes val titleTextId: Int,
     val route: String
 ) {
+    Auth(
+        selectedIcon = R.drawable.ic_home_selected,
+        unSelectedIcon = R.drawable.ic_home,
+        iconText = R.string.home,
+        titleTextId = R.string.home,
+        route = Routes.Login.createRoute()
+    ),
     HOME(
         selectedIcon = R.drawable.ic_home_selected,
         unSelectedIcon = R.drawable.ic_home,
