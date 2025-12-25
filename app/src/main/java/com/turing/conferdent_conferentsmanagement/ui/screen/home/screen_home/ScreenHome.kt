@@ -4,6 +4,11 @@ import android.Manifest
 import android.widget.TextView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -215,27 +220,30 @@ fun ScreenStateless(
             modifier = Modifier.height(400.dp).fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            when (eventState) {
-                is ScreenHomeEvent.LoadEventSuccess -> {
+            this@Column.AnimatedVisibility(
+                visible = eventState is ScreenHomeEvent.LoadEventSuccess, // Visibiltiy changes from false to true
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                val successState = eventState as? ScreenHomeEvent.LoadEventSuccess
+                if (successState != null) {
                     ComingEventComponent(
-                        eventCardInformationUIList = eventState.eventCardInformationUIList
+                        eventCardInformationUIList = successState.eventCardInformationUIList
                     ){
                         onNavEventDetail(it)
                     }
                 }
-
-                is ScreenHomeEvent.LoadEventError -> {
-                    Text(
-                        text = eventState.message,
-                        color = Color.Red
-                    )
-                }
-
-                is ScreenHomeEvent.LoadEvent -> {
-                    RoseCurveSpinner(
-                        color = Color.Black
-                    )
-                }
+            }
+            this@Column.AnimatedVisibility(eventState is ScreenHomeEvent.LoadEventError) {
+                Text(
+                    text = (eventState as ScreenHomeEvent.LoadEventError).message,
+                    color = Color.Red
+                )
+            }
+            if(eventState is ScreenHomeEvent.LoadEvent){
+                RoseCurveSpinner(
+                    color = Color.Black
+                )
             }
         }
         Spacer(modifier = Modifier.height(128.dp))

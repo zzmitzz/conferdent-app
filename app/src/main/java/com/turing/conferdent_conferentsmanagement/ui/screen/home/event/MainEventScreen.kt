@@ -393,10 +393,13 @@ fun MainEventContent(
                     )
                     .padding(vertical = 40.dp, horizontal = 30.dp)
             ) {
-                Row() {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AsyncImage(
                         model = organizerData.avatar,
                         contentDescription = null,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier.size(42.dp).clip(CircleShape),
                         placeholder = painterResource(R.drawable.img_loading)
                     )

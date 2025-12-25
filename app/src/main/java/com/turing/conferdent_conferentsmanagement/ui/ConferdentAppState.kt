@@ -60,6 +60,8 @@ class ConferdentAppState(
                 popUpTo(navController.graph.id) {
                     inclusive = true
                 }
+                launchSingleTop = true
+                restoreState = false
             }
         }
     }

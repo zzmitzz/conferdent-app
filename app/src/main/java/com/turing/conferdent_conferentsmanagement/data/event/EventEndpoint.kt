@@ -102,6 +102,20 @@ data class SpeakerSessionsResponse(
     @SerialName("total") val total: Int = 0
 )
 
+
+
+@Serializable
+data class FormDetailData(
+    @SerialName("created_at"      ) var createdAt      : String? = null,
+    @SerialName("updated_at"      ) var updatedAt      : String? = null,
+    @SerialName("_id"             ) var Id             : String? = null,
+    @SerialName("form_fields_id"  ) var formFieldsId   : String? = null,
+    @SerialName("response"        ) var response       : String? = null,
+    @SerialName("event_id"        ) var eventId        : String? = null,
+    @SerialName("registration_id" ) var registrationId : String? = null
+
+)
+
 interface EventEndpoint {
     @GET("/registrations/events")
     suspend fun getEvents(
@@ -132,7 +146,7 @@ interface EventEndpoint {
     @POST("/registrations/responses/submit")
     suspend fun submitResponse(
         @Body body: RegistrationResponseSubmit
-    ): Response<String>
+    ): Response<BaseResponse<List<FormDetailData>>>
 
 
     @GET("/registrations/events/{id}/registered")

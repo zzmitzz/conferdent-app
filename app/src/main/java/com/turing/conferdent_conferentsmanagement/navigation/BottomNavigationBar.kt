@@ -56,6 +56,11 @@ fun BottomNavigationBar(
                     onClick = onTopLevelClick
                 )
                 IconState(
+                    isChosen = currentDestination == TopLevelDestination.CHATBOT,
+                    icon = TopLevelDestination.CHATBOT,
+                    onClick = onTopLevelClick
+                )
+                IconState(
                     isChosen = currentDestination == TopLevelDestination.NOTIFICATION,
                     icon = TopLevelDestination.NOTIFICATION,
                     onClick = onTopLevelClick

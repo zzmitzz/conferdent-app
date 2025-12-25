@@ -60,7 +60,7 @@ class ScreenFillFormVM @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                _state.value =  ScreenFFState.Error(e.message)
+                _state.value = ScreenFFState.Error(e.message)
 
             }
         }
@@ -71,13 +71,14 @@ class ScreenFillFormVM @Inject constructor(
             _state.value = ScreenFFState.Loading
             try {
                 val result = eventRepository.submitResponse(eventID, answerMap)
-                if(result is APIResult.Success) {
+                if (result is APIResult.Success) {
                     _effect.emit(ScreenFFUIEffect.NavigateToNextScreen)
                 } else {
-                    _effect.emit(ScreenFFUIEffect.ShowToast("Something went wrong"))
+                    _effect.emit(ScreenFFUIEffect.ShowToast((result as APIResult.Error).message))
                 }
             } catch (e: Exception) {
-                _state.value = ScreenFFState.Error(e.message)
+                _state.value = ScreenFFState.Success(formData = (state.value as ScreenFFState.Success).formData)
+                _effect.emit(ScreenFFUIEffect.ShowToast(e.message.toString()))
             }
 
         }

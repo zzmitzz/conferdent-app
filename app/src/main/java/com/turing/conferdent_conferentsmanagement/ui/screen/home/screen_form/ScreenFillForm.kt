@@ -59,14 +59,7 @@ fun ScreenFillForm(
     var showConfirmExit by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val uiState = viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            if (effect is ScreenFFUIEffect.NavigateToNextScreen)
-                navNextScreen()
-            else if (effect is ScreenFFUIEffect.ShowToast)
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-        }
-    }
+
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {

@@ -13,7 +13,8 @@ import javax.inject.Singleton
 class AuthInterceptor @Inject constructor(
     val persistentStorage: IPersistentStorage
 ): Interceptor{
-    private var cacheToken: String? = null
+    var cacheToken: String? = null
+    
     override fun intercept(chain: Interceptor.Chain): Response {
         val requestBuilder = chain.request().newBuilder()
         if (cacheToken != null) {
@@ -27,5 +28,9 @@ class AuthInterceptor @Inject constructor(
             }
         }
         return chain.proceed(requestBuilder.build())
+    }
+    
+    fun clearToken() {
+        cacheToken = null
     }
 }

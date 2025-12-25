@@ -44,6 +44,13 @@ enum class TopLevelDestination(
         titleTextId = R.string.favourite,
         route = Routes.Favourite.createRoute()
     ),
+    CHATBOT(
+        selectedIcon = R.drawable.ic_chatbot_selected,
+        unSelectedIcon = R.drawable.ic_chatbot,
+        iconText = R.string.chatbot,
+        titleTextId = R.string.chatbot,
+        route = "chat"
+    ),
     NOTIFICATION(
         selectedIcon = R.drawable.ic_noti_selected,
         unSelectedIcon = R.drawable.ic_noti,
@@ -86,6 +93,11 @@ sealed class Routes(
     data object Notification : Routes("notification_screen") {
         fun createRoute() = "notification_screen"
     }
+
+    data object Chat: Routes("chat_screen") {
+        fun createRoute() = "chat_screen"
+    }
+
 
     data object Setting : Routes("setting_screen") {
         fun createRoute() = "setting_screen"

@@ -1,12 +1,18 @@
 package com.turing.conferdent_conferentsmanagement.navigation
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.startActivity
@@ -38,16 +44,28 @@ import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_search.S
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_setting.ScreenSetting
 import androidx.core.net.toUri
 import com.turing.conferdent_conferentsmanagement.ui.screen.home.event.MainEventVMState
+import com.turing.conferdent_conferentsmanagement.ui.screen.home.screen_chat.ScreenChatStateless
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
     appState: ConferdentAppState
 ) {
+    val intentNotificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
 
+    }
     val context: Context = LocalContext.current
-
+    LaunchedEffect(Unit) {
+        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            intentNotificationLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+    }
     AnimatedNavHost(
         navController = navController,
         startDestination = "auth"
@@ -144,31 +162,7 @@ fun NavigationGraph(
         ) {
             composable(
                 route = Routes.Home.createRoute(),
-//                enterTransition = {
-//                    slideIntoContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Right,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                exitTransition = {
-//                    slideOutOfContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Left,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                popEnterTransition = {
-//                    slideIntoContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Left,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                popExitTransition = {
-//                    slideOutOfContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Right,
-//                        animationSpec = tween(500)
-//                    )
-//                }
-                ) {
+            ) {
                 appState.setVisibleBottomNav(true)
                 ScreenHome(
                     onNavSearch = {
@@ -194,36 +188,15 @@ fun NavigationGraph(
                 SearchScreen(
                     navigateBack = {
                         navController.popBackStack()
+                    },
+                    navigateToEventDetail = {
+                        navController.navigate(Routes.EventDetail.createRoute(it))
                     }
                 )
             }
 
             composable(
                 route = Routes.EventDetail.route,
-//                enterTransition = {
-//                    slideIntoContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Right,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                exitTransition = {
-//                    slideOutOfContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Left,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                popEnterTransition = {
-//                    slideIntoContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Left,
-//                        animationSpec = tween(500)
-//                    )
-//                },
-//                popExitTransition = {
-//                    slideOutOfContainer(
-//                        AnimatedContentTransitionScope.SlideDirection.Right,
-//                        animationSpec = tween(500)
-//                    )
-//                },
                 arguments = listOf(
                     navArgument(Routes.EVENT_ID) {
                         type = NavType.StringType
@@ -258,12 +231,13 @@ fun NavigationGraph(
                     },
                     onMapClick = {
                         try {
-                            val url = (viewModel.uiState.value as MainEventVMState.Success).event.maps
+                            val url =
+                                (viewModel.uiState.value as MainEventVMState.Success).event.maps
                             url?.let {
                                 val intent = Intent(Intent.ACTION_VIEW, it.toUri())
                                 context.startActivity(intent)
                             }
-                        }catch (e: Exception){
+                        } catch (e: Exception) {
 
                         }
                     },
@@ -271,7 +245,12 @@ fun NavigationGraph(
                         navController.navigate(Routes.EventSession.createRoute(eventID = eventID!!))
                     },
                     onSpeakerClick = { speakerId ->
-                        navController.navigate(Routes.SpeakerDetail.createRoute(speakerId, eventID!!)) {
+                        navController.navigate(
+                            Routes.SpeakerDetail.createRoute(
+                                speakerId,
+                                eventID!!
+                            )
+                        ) {
                             launchSingleTop = true
                             restoreState = false
                         }
@@ -340,6 +319,9 @@ fun NavigationGraph(
                     },
                     navNextScreen = {
                         navController.navigate(Routes.EventDetail.createRoute(eventID)) {
+                            popUpTo(Routes.EventDetail.route) {
+                                inclusive = true
+                            }
                             launchSingleTop = true
                             restoreState = false
                         }
@@ -450,7 +432,8 @@ fun NavigationGraph(
                 appState.setVisibleBottomNav(false)
                 val speakerId = entry.arguments?.getString(Routes.SPEAKER_ID)
                 val eventId = entry.arguments?.getString(Routes.EVENT_ID)
-                val viewModel: com.turing.conferdent_conferentsmanagement.ui.screen.home.speaker.SpeakerVM = hiltViewModel()
+                val viewModel: com.turing.conferdent_conferentsmanagement.ui.screen.home.speaker.SpeakerVM =
+                    hiltViewModel()
                 com.turing.conferdent_conferentsmanagement.ui.screen.home.speaker.ScreenSpeaker(
                     speakerId = speakerId,
                     eventId = eventId,
@@ -576,7 +559,11 @@ fun NavigationGraph(
                     )
                 }) {
                 appState.setVisibleBottomNav(true)
-                RegisteredEventScreenStateful()
+                RegisteredEventScreenStateful(
+                    navigateToEventDetail = {
+                        navController.navigate(Routes.EventDetail.createRoute(it))
+                    }
+                )
             }
         }
 
@@ -610,6 +597,44 @@ fun NavigationGraph(
             ScreenNotification()
         }
 
+        navigation(
+            startDestination = Routes.Chat.route,
+            route = "chat",
+
+            ) {
+            composable(
+                route = Routes.Chat.route,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(500)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(500)
+                    )
+                }
+            ) {
+                appState.setVisibleBottomNav(true)
+                ScreenChatStateless(
+                    viewModel = hiltViewModel()
+                )
+            }
+        }
 
     }
 }

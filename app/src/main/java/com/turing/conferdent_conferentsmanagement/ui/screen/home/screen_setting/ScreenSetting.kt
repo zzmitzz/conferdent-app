@@ -248,14 +248,14 @@ fun ProfileInfoCard(
             // Info Rows Section
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 InfoRow(
-                    icon = R.drawable.ic_email, text = userProfile?.email ?: "", isEditMode,
+                    icon = R.drawable.ic_email, text = userProfile?.email, isEditMode,
                     editText = mailTextChange.value,
                     onEditText = {
                         mailTextChange.value = it
                     },
                     textType = EditTextType.TEXT)
                 InfoRow(
-                    icon = R.drawable.ic_phone, text = userProfile?.phone ?: "", isEditMode,
+                    icon = R.drawable.ic_phone, text = userProfile?.phone , isEditMode,
                     editText = phoneTextChange.value,
                     onEditText = {
                         phoneTextChange.value = it
@@ -263,7 +263,7 @@ fun ProfileInfoCard(
                     textType = EditTextType.NUMBER)
                 InfoRow(
                     icon = R.drawable.ic_calendar_dates,
-                    text = userProfile?.dob ?: "",
+                    text = userProfile?.dob,
                     isEditMode,
                     editText = dobTextChange.value ,
                     onEditText = {
@@ -272,13 +272,13 @@ fun ProfileInfoCard(
                     textType = EditTextType.DATE
                 )
                 InfoRow(
-                    icon = R.drawable.ic_loc, text = userProfile?.address ?: "", isEditMode,
+                    icon = R.drawable.ic_loc, text = userProfile?.address , isEditMode,
                     editText = addressChange.value,
                     onEditText = { addressChange.value = it },
                     textType = EditTextType.TEXT
                 )
                 InfoRow(
-                    icon = R.drawable.ic_bio_user, text = userProfile?.bio ?: "", isEditMode,
+                    icon = R.drawable.ic_bio_user, text = userProfile?.bio, isEditMode,
                     editText = bioTextChange.value,
                     onEditText = {
                         bioTextChange.value = it

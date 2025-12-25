@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "503339208312",
+    "project_id": "ptit-booth-checkin",
+    "storage_bucket": "ptit-booth-checkin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503339208312:android:1d92bd4c874213c907678d",
+        "android_client_info": {
+          "package_name": "com.ptit_booth_chekin.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcDrN0v3FiKjJZSOqmqjDXqQKh6gquDdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

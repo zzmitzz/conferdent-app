@@ -197,6 +197,7 @@ fun ScreenQRCheckIn(
                                     .padding(end = 27.dp)
                                     .clip(CircleShape)
                                     .size(40.dp),
+                                contentScale = ContentScale.Crop,
                                 placeholder = painterResource(R.drawable.img_loading),
                                 error = painterResource(R.drawable.img_loading)
                             )

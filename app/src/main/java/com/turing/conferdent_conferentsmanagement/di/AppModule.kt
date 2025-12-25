@@ -7,6 +7,7 @@ import com.turing.conferdent_conferentsmanagement.core.network.AuthInterceptor
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.AuthenticationService
 import com.turing.conferdent_conferentsmanagement.data.event.EventEndpoint
 import com.turing.conferdent_conferentsmanagement.data.auth.remote.UserRepositoryService
+import com.turing.conferdent_conferentsmanagement.data.chatbot.ChatbotService
 import com.turing.conferdent_conferentsmanagement.utils.Constants
 import dagger.Binds
 import dagger.Module
@@ -92,6 +93,48 @@ class AppModule {
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
     }
+
+
+    @Provides
+    @Named("Chatbot")
+    fun provideChatbotRetrofit(): Retrofit {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val authInterceptor = Interceptor { chain ->
+            val request = chain.request().newBuilder()
+                .header("Content-Type", "application/json")
+                .build()
+            chain.proceed(request)
+        }
+
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(authInterceptor)
+            .connectTimeout(Constants.REQUEST_TIME_OUT*2, TimeUnit.MILLISECONDS)
+            .build()
+        val contentType = "application/json".toMediaType()
+        val json = Json {
+            ignoreUnknownKeys = true // ignores extra JSON fields
+            prettyPrint = false
+            isLenient = true
+        }
+        return Retrofit.Builder()
+            .baseUrl(Constants.CHATBOT_URL)
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory(contentType))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatbotEndpoint(
+        @Named("Chatbot") retrofit: Retrofit): ChatbotService {
+        return retrofit.create(ChatbotService::class.java)
+    }
+
+
 
     @Provides
     @Singleton

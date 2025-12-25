@@ -9,6 +9,7 @@ import com.turing.conferdent_conferentsmanagement.data.auth.repository.UserRepos
 import com.turing.conferdent_conferentsmanagement.data.common.APIResult
 import com.turing.conferdent_conferentsmanagement.utils.Constants
 import com.turing.conferdent_conferentsmanagement.utils.DateTimeFormatPattern
+import com.turing.conferdent_conferentsmanagement.utils.UserAccount
 import com.turing.conferdent_conferentsmanagement.utils.parseLocalDateToFormat
 import com.turing.conferdent_conferentsmanagement.utils.parseTimeFromServer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +50,8 @@ sealed class SettingVMState {
 class SettingViewModel @Inject constructor(
     private val persistentStorage: IPersistentStorage,
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authInterceptor: com.turing.conferdent_conferentsmanagement.core.network.AuthInterceptor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SettingVMState>(SettingVMState.Loading)
@@ -68,6 +70,9 @@ class SettingViewModel @Inject constructor(
             persistentStorage.saveKeySuspend(Constants.USER_NAME, null)
             persistentStorage.saveKeySuspend(Constants.USER_PASSWORD, null)
             authRepository.doLogout()
+            // Clear the cached token from the interceptor to prevent token persistence
+            authInterceptor.clearToken()
+            UserAccount.userProfile = null
             onLogoutSuccess()
         }
     }
