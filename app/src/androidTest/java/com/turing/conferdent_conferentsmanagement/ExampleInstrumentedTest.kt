@@ -1,4 +1,4 @@
-package com.turing.conferdent_conferentsmanagement
+package com.ptit_booth_chekin.project
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.turing.conferdent_conferentsmanagement", appContext.packageName)
+        assertEquals("com.ptit_booth_chekin.project", appContext.packageName)
     }
 }

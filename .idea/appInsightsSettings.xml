@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.ptit_booth_chekin.project" />
+                  <option name="mobileSdkAppId" value="1:503339208312:android:1d92bd4c874213c907678d" />
+                  <option name="projectId" value="ptit-booth-checkin" />
+                  <option name="projectNumber" value="503339208312" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -1,4 +1,4 @@
-package com.turing.conferdent_conferentsmanagement
+package com.ptit_booth_chekin.project
 
 import org.junit.Test
 

@@ -45,4 +45,5 @@
     <string name="error_password_empty">Password cannot be empty</string>
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="chatbot">Chatbot</string>
+    <string name="no_notifications">Không có thông báo nào.</string>
 </resources>

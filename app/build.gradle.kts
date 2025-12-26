@@ -5,14 +5,16 @@ plugins {
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
     kotlin("plugin.serialization")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
-    namespace = "com.turing.conferdent_conferentsmanagement"
+    namespace = "com.ptit_booth_chekin.project"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.turing.conferdent_conferentsmanagement"
+        applicationId = "com.ptit_booth_chekin.project"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
@@ -81,8 +83,19 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation(libs.androidx.compose.foundation)
-    implementation("com.google.maps.android:maps-compose:6.12.1") // ✅ latest stable version
+    implementation("com.google.maps.android:maps-compose:6.12.1")
     implementation("com.google.android.gms:play-services-maps:19.2.0")
     implementation("com.google.zxing:core:3.5.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+
+    implementation("com.google.firebase:firebase-analytics")
+
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
 
 }
