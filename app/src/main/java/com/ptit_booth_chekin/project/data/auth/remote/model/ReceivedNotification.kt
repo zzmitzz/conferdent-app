@@ -9,10 +9,10 @@ data class ActionData(
 @Serializable
 data class Notification(
     val _id: String,
-    val action_data: ActionData,
-    val action_type: String,
+    val action_data: ActionData?,
+    val action_type: String?,
     val body: String,
-    val image_url: String,
+    val image_url: String?,
     val sent_at: String,
     val title: String
 )
@@ -20,7 +20,7 @@ data class Notification(
 data class ReceivedNotification(
     val _id: String,
     val created_at: String,
-    val delivered_at: String,
+    val delivered_at: String?,
     val device_id: String,
     val error_message: String?,
     val fcm_message_id: String,
@@ -29,6 +29,20 @@ data class ReceivedNotification(
     val opened_at: String?,
     val registration_id: String,
     val sent_at: String,
-    val status: String,
-    val updated_at: String
+    val status: String?,
+    val updated_at: String?
+)
+
+@Serializable
+data class ReceiveNotificationPagination(
+    val notifications: List<ReceivedNotification>,
+    val pagination: Pagination
+)
+
+@Serializable
+data class Pagination(
+    val total: Int,
+    val limit: Int,
+    val page: Int,
+    val totalPages: Int
 )

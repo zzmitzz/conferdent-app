@@ -4,9 +4,9 @@ data class NotificationUI(
     val id: String,
     val title: String,
     val body: String,
-    val imageUrl: String,
+    val imageUrl: String?,
     val formattedTime: String,
     val isRead: Boolean,
-    val actionType: String,
-    val actionUrl: String
+    val actionType: String?,
+    val actionUrl: String?
 )

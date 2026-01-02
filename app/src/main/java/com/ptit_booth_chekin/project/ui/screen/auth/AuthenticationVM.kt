@@ -87,9 +87,7 @@ class AuthenticationVM
         updateState(LoginScreenVMState.Loading)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = authRepository.doLogin(email, password)
-                delay(2000L)
-                when (result) {
+                when (val result = authRepository.doLogin(email, password)) {
                     is APIResult.Success -> {
                         persistentStorage.saveKeySuspend(Constants.USER_TOKEN, result.data.accessToken)
                         persistentStorage.saveKeySuspend(Constants.USER_NAME, email)
@@ -127,7 +125,6 @@ class AuthenticationVM
                 )
                 return@launch
             }
-            delay(2000L)
             val result = authRepository.doRegister(email, password, fullName)
             when (result) {
                 is APIResult.Success -> {

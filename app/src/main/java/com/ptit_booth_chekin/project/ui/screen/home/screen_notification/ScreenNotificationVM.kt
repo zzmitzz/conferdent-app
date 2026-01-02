@@ -1,5 +1,7 @@
 package com.ptit_booth_chekin.project.ui.screen.home.screen_notification
 
+import android.content.Context
+import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ptit_booth_chekin.project.data.auth.remote.model.ReceivedNotification
@@ -8,6 +10,7 @@ import com.ptit_booth_chekin.project.data.common.APIResult
 import com.ptit_booth_chekin.project.ui.screen.home.screen_notification.components.NotificationUI
 import com.ptit_booth_chekin.project.utils.formatNotificationTime
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +33,8 @@ sealed class ScreenNotificationEffect() {
 
 @HiltViewModel
 class ScreenNotificationVM @Inject constructor(
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    @ApplicationContext val mContext: Context
 ) : ViewModel() {
     private val _uiState =
         MutableStateFlow<ScreenNotificationUIState>(ScreenNotificationUIState.UILoading)
@@ -39,7 +43,11 @@ class ScreenNotificationVM @Inject constructor(
     init {
         _uiState.value = ScreenNotificationUIState.UILoading
         viewModelScope.launch {
-            userRepository.getUserReceivedNotification().let {
+            val androidId = Settings.Secure.getString(
+                mContext.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+            userRepository.getUserReceivedNotification(androidId).let {
                 if (it is APIResult.Success) {
                     _uiState.value = ScreenNotificationUIState.UISuccess(
                         it.data.map { receivedNotification ->
@@ -51,7 +59,7 @@ class ScreenNotificationVM @Inject constructor(
                                 formattedTime = formatNotificationTime(receivedNotification.sent_at),
                                 isRead = receivedNotification.opened_at != null,
                                 actionType = receivedNotification.notification.action_type,
-                                actionUrl = receivedNotification.notification.action_data.url
+                                actionUrl = receivedNotification.notification.action_data?.url
                             )
                         }
                     )

@@ -9,10 +9,10 @@ import com.ptit_booth_chekin.project.R
 object Constants {
 
     const val REQUEST_TIME_OUT = 10000L
-    const val BASE_URL = "https://api.ptit-boot-checkin.site"
-//    const val BASE_URL = "http://192.168.1.30:3456"
-    const val CHATBOT_URL = "http://192.168.1.30:5000"
-//    const val CHATBOT_URL = "http://192.168.31.223:5000"
+//    const val BASE_URL = "https://api.ptit-boot-checkin.site"
+    const val BASE_URL = "http://192.168.1.13:3456"
+//    const val CHATBOT_URL = "http://192.168.1.27:5000"
+    const val CHATBOT_URL = "http://192.168.1.13:5000"
 //    const val BASE_URL = "http://192.168.31.223:3456"
 
     val USER_NAME = stringPreferencesKey("user_name")

@@ -1,7 +1,10 @@
 package com.ptit_booth_chekin.project.ui.screen.auth.components
 
+import android.content.Intent
+import android.net.Uri
 import android.text.Layout
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,10 +38,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,9 +70,12 @@ fun LoginComponents(
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
-    
+
     val errorEmailEmpty = stringResource(R.string.error_email_empty)
     val errorPasswordEmpty = stringResource(R.string.error_password_empty)
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,8 +100,6 @@ fun LoginComponents(
             fontWeight = FontWeight.Bold,
             fontSize = 38.sp
         )
-
-
         Box(
             modifier = Modifier
                 .padding(
@@ -237,10 +243,29 @@ fun LoginComponents(
                 )
             }
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 8.dp)
+                .clickable {
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com")).apply {
+                        context.startActivity(this)
+                    }
+                },
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Text(
+                text = "Quên mật khẩu?",
+                color = Color("#22272F".toColorInt()),
+                fontSize = 14.sp,
+                fontStyle = FontStyle.Italic
+            )
+        }
         Spacer(
-            modifier = Modifier.height(50.dp)
+            modifier = Modifier.height(24.dp)
         )
-        
+
         // Display general error message (e.g., incorrect credentials)
         if (errorMessage != null) {
             Text(
@@ -255,7 +280,7 @@ fun LoginComponents(
                     .padding(horizontal = 32.dp, vertical = 8.dp)
             )
         }
-        
+
         Box(
             modifier = Modifier.padding(
                 vertical = 10.5.dp,
@@ -266,17 +291,17 @@ fun LoginComponents(
                 onClick = {
                     // Validate fields
                     var hasError = false
-                    
+
                     if (email.isBlank()) {
                         emailError = errorEmailEmpty
                         hasError = true
                     }
-                    
+
                     if (password.isBlank()) {
                         passwordError = errorPasswordEmpty
                         hasError = true
                     }
-                    
+
                     if (!hasError) {
                         onLogin(email, password)
                     }

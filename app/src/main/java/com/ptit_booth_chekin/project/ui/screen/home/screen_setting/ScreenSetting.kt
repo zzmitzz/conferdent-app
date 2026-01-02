@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.net.Uri
 import android.widget.DatePicker
 import android.widget.Space
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,12 +73,18 @@ fun ScreenSetting(
                 userProfile = (uiState.value as SettingVMState.Success).userProfile,
                 isEditMode = (uiState.value as SettingVMState.Success).isEditMode,
                 switchEditMode = { viewModel.switchEditMode() },
-                updateUserProfile = { viewModel.updateUserProfile(it,context ) }
+                updateUserProfile = { viewModel.updateUserProfile(it, context) },
+                notificationEnabled = (uiState.value as SettingVMState.Success).isNotificationEnabled,
+                onNotificationsEnabledChange = { viewModel.toggleNotificationEnable(it) }
             )
         }
 
         is SettingVMState.Error -> {
-            resetToLogin()
+            Toast.makeText(
+                context,
+                (uiState.value as SettingVMState.Error).message,
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         is SettingVMState.Loading -> {
@@ -100,7 +107,9 @@ fun PersonalSettingsScreen(
     userProfile: UserProfile? = null,
     isEditMode: Boolean = false,
     switchEditMode: () -> Unit = {},
-    updateUserProfile: (UserProfile) -> Unit = {}
+    updateUserProfile: (UserProfile) -> Unit = {},
+    notificationEnabled: Boolean = false,
+    onNotificationsEnabledChange: (Boolean) -> Unit = {}
 ) {
 
     val showDialog = remember { mutableStateOf(false) }
@@ -136,7 +145,12 @@ fun PersonalSettingsScreen(
                 }
             )
             Spacer(modifier = Modifier.height(20.dp))
-            SettingsOptionsCard()
+            SettingsOptionsCard(
+                notificationsEnabled = notificationEnabled,
+                onNotificationsEnabledChange = {
+                    onNotificationsEnabledChange(it)
+                }
+            )
             Spacer(modifier = Modifier.height(20.dp))
             LogoutButton() {
                 showDialog.value = true
@@ -156,7 +170,7 @@ fun PersonalSettingsScreen(
     )
 }
 
-enum class EditTextType{
+enum class EditTextType {
     TEXT,
     NUMBER,
     DATE
@@ -253,26 +267,28 @@ fun ProfileInfoCard(
                     onEditText = {
                         mailTextChange.value = it
                     },
-                    textType = EditTextType.TEXT)
+                    textType = EditTextType.TEXT
+                )
                 InfoRow(
-                    icon = R.drawable.ic_phone, text = userProfile?.phone , isEditMode,
+                    icon = R.drawable.ic_phone, text = userProfile?.phone, isEditMode,
                     editText = phoneTextChange.value,
                     onEditText = {
                         phoneTextChange.value = it
                     },
-                    textType = EditTextType.NUMBER)
+                    textType = EditTextType.NUMBER
+                )
                 InfoRow(
                     icon = R.drawable.ic_calendar_dates,
                     text = userProfile?.dob,
                     isEditMode,
-                    editText = dobTextChange.value ,
+                    editText = dobTextChange.value,
                     onEditText = {
                         dobTextChange.value = it
                     },
                     textType = EditTextType.DATE
                 )
                 InfoRow(
-                    icon = R.drawable.ic_loc, text = userProfile?.address , isEditMode,
+                    icon = R.drawable.ic_loc, text = userProfile?.address, isEditMode,
                     editText = addressChange.value,
                     onEditText = { addressChange.value = it },
                     textType = EditTextType.TEXT
@@ -283,7 +299,8 @@ fun ProfileInfoCard(
                     onEditText = {
                         bioTextChange.value = it
                     },
-                    textType = EditTextType.TEXT)
+                    textType = EditTextType.TEXT
+                )
             }
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -358,16 +375,18 @@ fun InfoRow(
     textType: EditTextType,
     onEditText: (String) -> Unit
 ) {
-    if(textType == EditTextType.DATE){
+    if (textType == EditTextType.DATE) {
         val context = LocalContext.current
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        var selectedDate by rememberSaveable { mutableStateOf(
-            if(!text.isNullOrBlank()){
-                dateFormatter.parse(text)
-            } else {
-                null
-            }
-        ) }
+        var selectedDate by rememberSaveable {
+            mutableStateOf(
+                if (!text.isNullOrBlank()) {
+                    dateFormatter.parse(text)
+                } else {
+                    null
+                }
+            )
+        }
         val interactionSource = remember { MutableInteractionSource() }
         val calendar = Calendar.getInstance()
         val datePickerDialog = DatePickerDialog(
@@ -394,17 +413,19 @@ fun InfoRow(
 
             Box(
                 modifier = Modifier
-            ){
-                if(isEditMode){
+            ) {
+                if (isEditMode) {
                     TextField(
-                        value = if(selectedDate != null) dateFormatter.format(selectedDate!!) else "Chưa cung cấp",
+                        value = if (selectedDate != null) dateFormatter.format(selectedDate!!) else "Chưa cung cấp",
                         onValueChange = {},
-                        modifier = Modifier.fillMaxWidth().clickable(
-                            interactionSource = interactionSource,
-                            indication = null
-                        ){
-                            datePickerDialog.show()
-                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                datePickerDialog.show()
+                            },
                         singleLine = true,
                         readOnly = true,
                         enabled = false,
@@ -424,9 +445,9 @@ fun InfoRow(
                             unfocusedContainerColor = Color.Transparent,
                         )
                     )
-                }else{
+                } else {
                     Text(
-                        text = if(selectedDate != null) dateFormatter.format(selectedDate!!) else "Chưa cung cấp",
+                        text = if (selectedDate != null) dateFormatter.format(selectedDate!!) else "Chưa cung cấp",
                         fontSize = 14.sp,
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.Black,
@@ -434,7 +455,7 @@ fun InfoRow(
                 }
             }
         }
-    }else{
+    } else {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -482,8 +503,10 @@ fun InfoRow(
 }
 
 @Composable
-fun SettingsOptionsCard() {
-    var notificationsEnabled by remember { mutableStateOf(true) }
+fun SettingsOptionsCard(
+    notificationsEnabled: Boolean = false,
+    onNotificationsEnabledChange: (Boolean) -> Unit = {}
+) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -498,7 +521,7 @@ fun SettingsOptionsCard() {
             SettingsToggleRow(
                 text = "Bật thông báo",
                 checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it }
+                onCheckedChange = { onNotificationsEnabledChange(it) }
             )
             Divider(
                 color = Color(0xFFF0F0F0), // Light divider

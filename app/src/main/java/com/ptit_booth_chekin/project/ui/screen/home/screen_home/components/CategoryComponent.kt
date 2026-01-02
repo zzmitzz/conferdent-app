@@ -39,6 +39,7 @@ fun CategoryIcon(
 ){
     Column(
         modifier = Modifier
+            .width(100.dp)
             .clickable { onClick() }
             .background(
                 shape = RoundedCornerShape(12.dp),

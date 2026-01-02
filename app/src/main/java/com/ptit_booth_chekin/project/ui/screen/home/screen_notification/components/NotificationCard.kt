@@ -57,14 +57,15 @@ fun NotificationCard(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.Start
             ) {
-                if (notificationUI.imageUrl.isNotEmpty()) {
+                if (!notificationUI.imageUrl.isNullOrBlank()) {
                     AsyncImage(
-                        model = notificationUI.imageUrl,
+                        model = notificationUI.imageUrl ,
                         contentDescription = null,
                         modifier = Modifier
                             .size(60.dp)
                             .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(R.drawable.logo)
                     )
                 } else {
                     Box(
@@ -77,7 +78,7 @@ fun NotificationCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.ic_star),
+                            painter = painterResource(R.drawable.logo),
                             contentDescription = null,
                             modifier = Modifier.size(32.dp)
                         )

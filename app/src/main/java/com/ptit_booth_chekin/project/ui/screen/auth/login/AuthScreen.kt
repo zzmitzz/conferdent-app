@@ -47,7 +47,6 @@ fun AuthScreenStateful(
         viewModel.checkSavedAccount()
     }
 
-    // 👇 UI rendering remains pure and declarative
     AuthScreenStateless(
         onNavRegister = onNavRegister,
         onLogin = { username, password ->
@@ -70,7 +69,6 @@ fun AuthScreenStateful(
         }
 
         is LoginScreenVMState.Error -> {
-            // Show error message
         }
 
         else -> Unit

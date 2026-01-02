@@ -4,6 +4,14 @@ import kotlinx.serialization.Serializable
 
 
 
+@Serializable
+data class BaseResponseNotification<out T: Any>(
+    val status: Int,
+    val success: Boolean,
+    val message: String,
+    val data: T? = null
+)
+
 
 @Serializable
 data class BaseResponse<out T : Any>(
@@ -11,6 +19,15 @@ data class BaseResponse<out T : Any>(
     val success: Boolean,
     val message: String,
     val data: T
+)
+
+
+@Serializable
+data class BaseResponseAuthentication<out T : Any>(
+    val status: Int,
+    val success: Boolean,
+    val message: String,
+    val data: T? = null
 )
 
 @Serializable
