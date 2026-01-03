@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -218,7 +219,6 @@ fun ScreenStateless(
         Spacer(modifier = Modifier.height(32.dp))
         Box(
             modifier = Modifier.height(500.dp).fillMaxWidth(),
-            contentAlignment = Alignment.Center
         ) {
             this@Column.AnimatedVisibility(
                 visible = eventState is ScreenHomeEvent.LoadEventSuccess, // Visibiltiy changes from false to true
@@ -241,9 +241,14 @@ fun ScreenStateless(
                 )
             }
             if(eventState is ScreenHomeEvent.LoadEvent){
-                RoseCurveSpinner(
-                    color = Color.Black
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    RoseCurveSpinner(
+                        color = Color.Black
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(128.dp))

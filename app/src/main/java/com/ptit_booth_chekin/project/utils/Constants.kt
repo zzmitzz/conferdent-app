@@ -16,7 +16,7 @@ object Constants {
 //    const val BASE_URL = "http://192.168.31.223:3456"
 
     val USER_NAME = stringPreferencesKey("user_name")
-    val USER_PASSWORD = stringPreferencesKey("user_password")
+    val USER_PASSWORD = stringPreferencesKey("user_passjmword")
     val USER_TOKEN = stringPreferencesKey("user_token")
 
     enum class EventCategory(

@@ -74,8 +74,7 @@ class ScreenHomeVM @Inject constructor(
     private fun eventFetchFlow() {
         viewModelScope.launch(Dispatchers.IO) {
             delay(2000L)
-            val result = eventRepository.getEvents(true)
-            when (result) {
+            when (val result = eventRepository.getEvents(true)) {
                 is APIResult.Success -> {
                     updateEventState(ScreenHomeEvent.LoadEventSuccess(result.data.map {
                         EventCardInformationUI(
@@ -85,7 +84,7 @@ class ScreenHomeVM @Inject constructor(
                             startTime = it.startTime ?: "" ,
                             endTime = it.endTime ?: "",
                             category = it.categoryId ?: "",
-                            organization = "VNTechConf",
+                            organization = it.organizers?.name ?: "",
                             logo = it.logo ?: "",
                         )
                     }))

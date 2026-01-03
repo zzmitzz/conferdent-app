@@ -343,8 +343,9 @@ fun ProfileInfoCard(
                                     address = addressChange.value ?: ""
                                 )
                             )
+                        }else{
+                            switchEditMode()
                         }
-                        switchEditMode()
                     },
                     shape = RoundedCornerShape(16), // Fully rounded
                     colors = ButtonDefaults.buttonColors(
