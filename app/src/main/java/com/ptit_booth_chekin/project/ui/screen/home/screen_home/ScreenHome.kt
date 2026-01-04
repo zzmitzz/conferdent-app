@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.HorizontalAlign
 import androidx.core.graphics.toColorInt
 import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,6 +53,7 @@ import com.ptit_booth_chekin.project.R
 import com.ptit_booth_chekin.project.core.ui.RoseCurveSpinner
 import com.ptit_booth_chekin.project.ui.screen.home.screen_home.components.CategoryComponent
 import com.ptit_booth_chekin.project.ui.screen.home.screen_home.components.ComingEventComponent
+import com.ptit_booth_chekin.project.ui.screen.home.screen_home.components.ComingNearByEventComponent
 import com.ptit_booth_chekin.project.ui.screen.home.screen_home.components.LocationText
 import com.ptit_booth_chekin.project.ui.theme.JosefinSans
 import com.ptit_booth_chekin.project.utils.getAddressFromLatLng
@@ -79,7 +81,6 @@ fun ScreenHome(
         LocationServices.getFusedLocationProviderClient(context)
     }
 
-    val userState by viewModel.uiState.collectAsStateWithLifecycle()
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
     var city by remember { mutableStateOf<String?>(null) }
     var province by remember { mutableStateOf<String?>(null) }
@@ -93,10 +94,13 @@ fun ScreenHome(
                     val address = getAddressFromLatLng(context, lat, lon)
                     city = address?.subAdminArea
                     province = address?.thoroughfare
+                    viewModel.updateNearbyEvents(lat, lon)
                 }
             }
         }
 
+    LaunchedEffect(city, province) {
+    }
 
     LaunchedEffect(Unit) {
         locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -107,7 +111,6 @@ fun ScreenHome(
         },
         scrollState = scrollState,
         currentLocation = if (city != null && province != null) (province!! to city!!) else null,
-        userName = userState,
         eventState = eventState,
         onNavEventDetail = {
             onNavEventDetail(it)
@@ -123,7 +126,6 @@ fun ScreenStateless(
     onNavSearch: () -> Unit = {},
     scrollState: ScrollState,
     currentLocation: Pair<String, String>? = null,
-    userName: ScreenHomeViewState = ScreenHomeViewState.Loading,
     eventState: ScreenHomeEvent = ScreenHomeEvent.LoadEvent,
     onNavEventDetail: (String) -> Unit = {},
     onNavCategoryFilter: (String) -> Unit = {}
@@ -152,27 +154,21 @@ fun ScreenStateless(
         Box(
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            when (userName) {
-                is ScreenHomeViewState.Success -> {
+            if (eventState is ScreenHomeEvent.LoadEventSuccess) {
+                Column(
+                    horizontalAlignment = Alignment.Start
+                ) {
                     Text(
-                        text = "Xin chào \n${userName.name}",
+                        text = "Xin chào",
+                        fontSize = 36.sp,
+                        fontFamily = JosefinSans,
+                    )
+                    Text(
+                        text = eventState.userFullName,
                         fontSize = 36.sp,
                         fontFamily = JosefinSans,
                         fontWeight = FontWeight.Bold
                     )
-                }
-
-                is ScreenHomeViewState.Error -> {
-                    Text(
-                        text = "Chào mừng quay lại",
-                        fontSize = 36.sp,
-                        fontFamily = JosefinSans,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                is ScreenHomeViewState.Loading -> {
-
                 }
             }
         }
@@ -216,9 +212,33 @@ fun ScreenStateless(
                 onNavCategoryFilter(categoryId)
             }
         )
+
         Spacer(modifier = Modifier.height(32.dp))
         Box(
-            modifier = Modifier.height(500.dp).fillMaxWidth(),
+            modifier = Modifier
+                .height(320.dp)
+                .fillMaxWidth(),
+        ) {
+            this@Column.AnimatedVisibility(
+                visible = eventState is ScreenHomeEvent.LoadEventSuccess, // Visibiltiy changes from false to true
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                val successState = eventState as? ScreenHomeEvent.LoadEventSuccess
+                if (successState != null) {
+                    ComingNearByEventComponent(
+                        eventCardInformationUIList = successState.eventCardInformationUIList
+                    ) {
+                        onNavEventDetail(it)
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .height(500.dp)
+                .fillMaxWidth(),
         ) {
             this@Column.AnimatedVisibility(
                 visible = eventState is ScreenHomeEvent.LoadEventSuccess, // Visibiltiy changes from false to true
@@ -229,7 +249,7 @@ fun ScreenStateless(
                 if (successState != null) {
                     ComingEventComponent(
                         eventCardInformationUIList = successState.eventCardInformationUIList
-                    ){
+                    ) {
                         onNavEventDetail(it)
                     }
                 }
@@ -240,17 +260,17 @@ fun ScreenStateless(
                     color = Color.Red
                 )
             }
-            if(eventState is ScreenHomeEvent.LoadEvent){
+            if (eventState is ScreenHomeEvent.LoadEvent) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     RoseCurveSpinner(
                         color = Color.Black
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(128.dp))
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }

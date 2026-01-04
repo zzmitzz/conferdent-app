@@ -59,6 +59,7 @@ class CategoryFilterVM @Inject constructor(
                                     category = it.categoryId ?: "",
                                     organization = "VNTechConf",
                                     logo = it.logo ?: "",
+                                    thumbnail = it.thumbnail ?: "",
                                 )
                             }
 

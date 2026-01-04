@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -46,9 +47,11 @@ data class EventCardInformationUI(
     val category: String,
     val organization: String,
     val logo: String,
+    val thumbnail: String,
     val startTime: String,
     val endTime: String,
     val location: String,
+    val tags: List<String> = emptyList()
 )
 
 @Composable
@@ -140,6 +143,7 @@ fun EventCard(
                     Image(
                         painter = painterResource(R.drawable.ic_clock),
                         contentDescription = "Time",
+                        colorFilter = ColorFilter.tint(Color.Black),
                         modifier = Modifier.size(9.dp),
 
                         )
@@ -155,6 +159,7 @@ fun EventCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(R.drawable.ic_clock),
+                        colorFilter = ColorFilter.tint(Color.Black),
                         contentDescription = "Time",
                         modifier = Modifier.size(9.dp),
                     )
@@ -184,6 +189,7 @@ fun InfoRow(icon: Int, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = painterResource(icon),
+            colorFilter = ColorFilter.tint(Color.Black),
             contentDescription = null, // Decorative icon
             modifier = Modifier.size(9.dp),
         )
@@ -209,7 +215,8 @@ fun EventCardPreview() {
             logo = "https://example.com/logo.png",
             startTime = "2025-11-10T09:00:00.000Z",
             endTime = "2025-11-10T17:00:00.000Z",
-            location = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội"
+            location = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội",
+            thumbnail = "hi"
         )
     )
 }

@@ -89,7 +89,7 @@ fun CalenderComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(R.drawable.arrow_left_rec),
+                painter = painterResource(R.drawable.arrow_left),
                 contentDescription = null,
                 modifier = Modifier.clickable{
                     currentDate = currentDate.minusDays(7)
@@ -104,7 +104,7 @@ fun CalenderComponent(
                 textAlign = TextAlign.Center
             )
             Image(
-                painter = painterResource(R.drawable.arrow_right_rec),
+                painter = painterResource(R.drawable.arrow_right),
                 contentDescription = null,
                 modifier = Modifier.clickable{
                     currentDate = currentDate.plusDays(7)

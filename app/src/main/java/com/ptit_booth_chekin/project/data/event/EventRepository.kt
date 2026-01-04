@@ -41,6 +41,22 @@ class EventRepository @Inject constructor(
         }
     }
 
+    suspend fun getNearbyEvents(lat: Double?, lng: Double?): APIResult<List<EventDetail>>{
+        if(lat == null || lng == null){
+            return APIResult.Error("Invalid latitude or longitude")
+        }
+        return try {
+            val result = eventEndpoint.getNearbyEvents(lat, lng)
+            if (result.isSuccessful && result.body() != null) {
+                APIResult.Success(result.body()!!.data.items)
+            } else {
+                APIResult.Error(result.message())
+            }
+        } catch (e: Exception) {
+            APIResult.Error(e.message.toString())
+        }
+    }
+
     private var eventSearchPageFetch: Int = 1
     private var eventSearchLimitFetch: Int = 10
     suspend fun searchEvent(

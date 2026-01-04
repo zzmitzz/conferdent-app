@@ -51,6 +51,9 @@ fun SearchScreen(
     viewModel: SearchScreenVM = hiltViewModel()
 ) {
     val searchState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isFilterVisible by viewModel.isFilterVisible.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +61,7 @@ fun SearchScreen(
                 color = Color("#ECECEE".toColorInt())
             )
             .padding(
-                horizontal = 16.dp
+                horizontal = 8.dp
             ),
         horizontalAlignment = Alignment.Start
     ) {
@@ -92,9 +95,19 @@ fun SearchScreen(
             )
         }
         Spacer(modifier = Modifier.height(36.dp))
-        SearchComponents() { search ->
-            viewModel.doSearch(search)
-        }
+        SearchComponents(
+            isFilterVisible = isFilterVisible,
+            selectedFilter = selectedFilter,
+            onSearchKeyChange = { search ->
+                viewModel.doSearch(search)
+            },
+            onFilterClick = {
+                viewModel.toggleFilterVisibility()
+            },
+            onFilterSelect = { filter ->
+                viewModel.selectFilter(filter)
+            }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         when (searchState) {
             is SearchScreenViewState.Success -> {
@@ -120,8 +133,10 @@ fun SearchScreen(
                                         startTime = it.startTime ?: "",
                                         endTime = it.endTime ?: "",
                                         category = it.categoryId ?: "",
-                                        organization = "VNTechConf",
+                                        organization = it.organizerName ?: "",
                                         logo = it.logo ?: "",
+                                        tags = it.tags ?: emptyList(),
+                                        thumbnail = it.thumbnail ?: "",
                                     )
                                 },
                                 onEventClick = navigateToEventDetail

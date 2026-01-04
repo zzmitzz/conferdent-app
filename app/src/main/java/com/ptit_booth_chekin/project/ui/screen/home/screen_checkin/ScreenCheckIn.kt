@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -59,13 +60,24 @@ import com.ptit_booth_chekin.project.utils.UserAccount
 @Composable
 fun ScreenCheckInQR(
     navBack: () -> Unit,
+    eventID: String? = null,
     viewModel: MainEventVM
 ) {
     val uiState by viewModel.qrScreenState.collectAsStateWithLifecycle()
-    val eventState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getRegistration()
+        viewModel.getRegistration(eventID)
+    }
+    LaunchedEffect(Unit) {
+        if(viewModel.event == null){
+            viewModel.fetchEventDetail(eventID)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stopBitmapGenerate()
+        }
     }
 
     when (uiState) {

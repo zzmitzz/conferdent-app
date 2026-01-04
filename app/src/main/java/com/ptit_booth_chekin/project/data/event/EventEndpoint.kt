@@ -64,7 +64,9 @@ data class EventDetail(
     @SerialName("is_registered") val isRegistered: Boolean = false,
     @SerialName("organizer") val organizers: EventOrganizer? = null,
     @SerialName("speakers") val speakers: List<EventSpeakers> = emptyList(),
-    @SerialName("maps") val maps: String? = null
+    @SerialName("maps") val maps: String? = null,
+    @SerialName("distance") val distance: Double? = null,
+    @SerialName("organizer_name") val organizerName: String? = null
     )
 
 @Serializable
@@ -117,6 +119,14 @@ data class FormDetailData(
 )
 
 interface EventEndpoint {
+
+
+    @GET("/registrations/events/nearby")
+    suspend fun getNearbyEvents(
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double
+    ): Response<BaseResponse<EventListWrapper>>
+
     @GET("/registrations/events")
     suspend fun getEvents(
         @Query("page") page: Int,

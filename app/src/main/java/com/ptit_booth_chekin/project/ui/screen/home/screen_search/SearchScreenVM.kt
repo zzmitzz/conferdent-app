@@ -19,6 +19,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
+enum class FilterOption {
+    NEWEST, A_Z, Z_A, UPCOMING
+}
+
 sealed class SearchScreenViewState() {
     data class Success(val events: List<EventDetail>) : SearchScreenViewState()
     data class Error(val message: String) : SearchScreenViewState()
@@ -37,6 +41,14 @@ class SearchScreenVM
     private var fromFirstPage: Boolean = true
 
     var searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+    
+    private val _isFilterVisible = MutableStateFlow(false)
+    val isFilterVisible: StateFlow<Boolean> = _isFilterVisible.asStateFlow()
+    
+    private val _selectedFilter = MutableStateFlow(FilterOption.NEWEST)
+    val selectedFilter: StateFlow<FilterOption> = _selectedFilter.asStateFlow()
+    
+    private var unfilteredEvents: List<EventDetail> = emptyList()
 
     init {
         viewModelScope.launch {
@@ -65,7 +77,9 @@ class SearchScreenVM
         fromFirstPage = false
         when (result) {
             is APIResult.Success -> {
-                _uiState.value = SearchScreenViewState.Success(result.data)
+                unfilteredEvents = result.data
+                val filteredData = applyFilter(unfilteredEvents, _selectedFilter.value)
+                _uiState.value = SearchScreenViewState.Success(filteredData)
             }
 
             is APIResult.Error -> {
@@ -74,6 +88,25 @@ class SearchScreenVM
         }
     }
 
+    private fun applyFilter(events: List<EventDetail>, filter: FilterOption): List<EventDetail> {
+        return when (filter) {
+            FilterOption.NEWEST -> events.sortedByDescending { it.createdAt }
+            FilterOption.A_Z -> events.sortedBy { it.name?.lowercase() }
+            FilterOption.Z_A -> events.sortedByDescending { it.name?.lowercase() }
+            FilterOption.UPCOMING -> events.sortedBy { it.startTime }
+        }
+    }
 
 
+    fun toggleFilterVisibility() {
+        _isFilterVisible.value = !_isFilterVisible.value
+    }
+    
+    fun selectFilter(option: FilterOption) {
+        _selectedFilter.value = option
+        if (unfilteredEvents.isNotEmpty()) {
+            val filteredData = applyFilter(unfilteredEvents, option)
+            _uiState.value = SearchScreenViewState.Success(filteredData)
+        }
+    }
 }

@@ -2,6 +2,8 @@ package com.ptit_booth_chekin.project.ui.screen.home.conferent_session.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +43,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SessionComponents(
     modifier: Modifier,
-    session: SessionUIWrap
+    session: SessionUIWrap,
+    onDetail: () -> Unit = {}
 ) {
     val isHappening = session.status == SessionTypeState.HAPPENING
     Box(
@@ -128,6 +132,8 @@ fun SessionComponents(
                     Text(
                         text = session.description,
                         color = if (isHappening) Color("#ABABAB".toColorInt()) else Color("#6B6B6B".toColorInt()),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
                         fontSize = 14.sp
                     )
                     Row(
@@ -148,7 +154,11 @@ fun SessionComponents(
                             modifier = Modifier.padding(horizontal = 12.dp)
                         )
                     }
-                    Row() {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         session.speaker.forEach {
                             AsyncImage(
                                 model = it.avatarLink,
@@ -160,6 +170,15 @@ fun SessionComponents(
                                 placeholder = painterResource(R.drawable.img_loading),
                             )
                         }
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            text = "Xem thêm",
+                            fontSize = 12.sp,
+                            color = if (isHappening) Color.White else Color.Black,
+                            modifier = Modifier.clickable {
+                                onDetail()
+                            }
+                        )
                     }
                 }
             }

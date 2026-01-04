@@ -18,6 +18,7 @@ object DateTimeFormatPattern {
     val PATTERN_DATE_ONLY: String = "dd/MM/yyyy"
     val PATTERN_TIME_ONLY: String = "HH:mm:ss"
     val PATTERN_DATE_TIME: String = "dd/MM/yyyy, HH:mm:ss"
+    val PATTERN_TIME_DATE: String = "HH:mm dd/MM/yyyy"
     val PATTERN_SERVER: String = "yyyy-MM-dd"
 
     val PATERRN_DATE_TIME_SESSION: String = "HH:mm"

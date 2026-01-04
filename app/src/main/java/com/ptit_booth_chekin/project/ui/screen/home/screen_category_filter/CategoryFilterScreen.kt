@@ -227,7 +227,8 @@ private fun CategoryFilterPreview() {
                     logo = "https://example.com/logo.png",
                     startTime = "2025-11-10T09:00:00.000Z",
                     endTime = "2025-11-10T17:00:00.000Z",
-                    location = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội"
+                    location = "Trung tâm hội nghị Quốc Gia, TP. Hà Nội",
+                    thumbnail = ""
                 )
             )
         )

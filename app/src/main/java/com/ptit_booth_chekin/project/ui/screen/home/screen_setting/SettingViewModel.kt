@@ -1,10 +1,12 @@
 package com.ptit_booth_chekin.project.ui.screen.home.screen_setting
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.util.CoilUtils.result
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ptit_booth_chekin.project.core.data.IPersistentStorage
 import com.ptit_booth_chekin.project.data.auth.remote.RegistrationDetail
@@ -97,8 +99,29 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("HardwareIds")
     private suspend fun refreshUserProfile() {
         val userResult = userRepository.getMe()
+
+        if (userResult is APIResult.Success) {
+            val user = userResult.data
+
+            UserAccount.userProfile = UserProfile(
+                email = user.email ?: "Chưa cung cấp",
+                phone = user.phone ?: "Chưa cung cấp",
+                fullName = user.fullName,
+                dob = user.dob?.let {
+                    parseLocalDateToFormat(
+                        parseTimeFromServer(user.dob),
+                        DateTimeFormatPattern.PATTERN_SERVER
+                    )
+                } ?: "Chưa cung cấp",
+                address = user.address ?: "Chưa cung cấp",
+                bio = user.bio?: "Chưa cung cấp",
+                avatarURL = user.avatar
+            )
+        }
+
         val deviceResult = userRepository.getRegisteredUserDevice()
 
         userResult.fold(

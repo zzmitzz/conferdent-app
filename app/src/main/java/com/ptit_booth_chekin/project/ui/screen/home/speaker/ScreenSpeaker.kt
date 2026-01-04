@@ -268,7 +268,10 @@ fun SpeakerContent(
             sessions.forEach { session ->
                 SessionComponents(
                     modifier = Modifier.fillMaxWidth(),
-                    session = session.toSessionUIWrap()
+                    session = session.toSessionUIWrap(),
+                    onDetail = {
+
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }

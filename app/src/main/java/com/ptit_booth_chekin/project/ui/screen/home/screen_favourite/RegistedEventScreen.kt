@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ptit_booth_chekin.project.R
 import com.ptit_booth_chekin.project.core.ui.RoseCurveSpinner
 import com.ptit_booth_chekin.project.data.event.EventDetail
+import com.ptit_booth_chekin.project.ui.screen.home.screen_favourite.components.HappeningEventCard
 import com.ptit_booth_chekin.project.ui.screen.home.screen_favourite.components.RegisteredEventCardComponents
 import com.ptit_booth_chekin.project.ui.theme.JosefinSans
 import com.ptit_booth_chekin.project.utils.parseTimeFromServer
@@ -53,11 +54,13 @@ import java.time.LocalDateTime
 @Composable
 fun RegisteredEventScreenStateful(
     navigateToEventDetail: (String) -> Unit = {},
+    onCheckIn: (String) -> Unit = {},
     viewModel: RegisteredEventVM = hiltViewModel()
 ) {
     val appState by viewModel.uiState.collectAsStateWithLifecycle()
     RegisteredEventScreen(
         appState = appState,
+        onCheckIn = onCheckIn,
         navigateToEventDetail = navigateToEventDetail
     )
 }
@@ -65,6 +68,7 @@ fun RegisteredEventScreenStateful(
 @Composable
 fun RegisteredEventScreen(
     appState: RegisteredEventVMState = RegisteredEventVMState.Success(),
+    onCheckIn: (String) -> Unit = {},
     navigateToEventDetail: (String) -> Unit = {}
 ) {
     val tabTitles = listOf(
@@ -109,9 +113,9 @@ fun RegisteredEventScreen(
                     )
                 } else {
                     Spacer(modifier = Modifier.height(24.dp))
-                    RegisteredEventCardComponents(
-                        date = "Đang diễn ra",
+                    HappeningEventCard(
                         listEvent = listOf(data),
+                        onCheckIn = onCheckIn,
                         onEventClick = navigateToEventDetail
                     )
                 }

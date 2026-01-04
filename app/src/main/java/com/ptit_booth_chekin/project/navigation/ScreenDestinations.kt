@@ -114,8 +114,8 @@ sealed class Routes(
     data object EventRegister : Routes("event_register_screen/{${EVENT_ID}}") {
         fun createRoute(eventID: String) = "event_register_screen/$eventID"
     }
-    object CheckInQR : Routes("check_in_qr") {
-        fun createRoute() = "check_in_qr"
+    object CheckInQR : Routes("check_in_qr/{${EVENT_ID}}") {
+        fun createRoute(eventID: String) = "check_in_qr/$eventID"
     }
 
     data object EventSession: Routes("event_session_screen/{${EVENT_ID}}")

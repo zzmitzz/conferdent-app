@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.ptit_booth_chekin.project.data.common.APIResult
 import com.ptit_booth_chekin.project.data.event.EventDetail
 import com.ptit_booth_chekin.project.data.event.EventRepository
+import com.ptit_booth_chekin.project.ui.screen.home.screen_setting.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -22,8 +23,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import com.ptit_booth_chekin.project.util.generateStyledQr
+import com.ptit_booth_chekin.project.utils.Constants
+import com.ptit_booth_chekin.project.utils.UserAccount
 import com.ptit_booth_chekin.project.utils.saveBitmapToMediaStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 
@@ -54,7 +62,7 @@ class MainEventVM @Inject constructor(
     var event: EventDetail? = null
     fun fetchEventDetail(
         eventID: String?
-    ){
+    ) {
         sharedEventID = eventID
         viewModelScope.launch(Dispatchers.IO) {
             if (eventID == null) {
@@ -73,14 +81,17 @@ class MainEventVM @Inject constructor(
             }
         }
     }
-    var qrScreenState = MutableStateFlow<QRGenerateState>(QRGenerateState.Loading)
 
-    fun getRegistration(){
-        viewModelScope.launch(Dispatchers.IO) {
+    var qrScreenState = MutableStateFlow<QRGenerateState>(QRGenerateState.Loading)
+    var bitmapGenerateJob: Job? = null
+    fun getRegistration(
+        eventID: String?
+    ) {
+        bitmapGenerateJob = viewModelScope.launch(Dispatchers.IO) {
             qrScreenState.value = QRGenerateState.Loading
-            when (val result = eventRepository.getRegistrationForm(sharedEventID!!)) {
+            when (val result = eventRepository.getRegistrationForm(eventID ?: sharedEventID!!)) {
                 is APIResult.Success -> {
-                    generateQRCode(result.data.id!!.toString()).collect {
+                    generateQRCode(result.data.id!!.toString()).flowOn(Dispatchers.Default).collect {
                         qrScreenState.value = QRGenerateState.Success(it)
                     }
                 }
@@ -92,15 +103,23 @@ class MainEventVM @Inject constructor(
         }
     }
 
-    fun generateQRCode(input: String): Flow<Bitmap>  = callbackFlow {
-        withContext(Dispatchers.IO){
-            while(isActive){
-                val encodeJson = mapOf<String,String>(
-                    "registeredID" to input,
-                    "timeStamp" to System.currentTimeMillis().toString()
-                )
-                val jsonInput = Json.encodeToString(encodeJson)
-                val bitmap = generateStyledQr(
+    fun stopBitmapGenerate() {
+        if (bitmapGenerateJob?.isActive == true) {
+            bitmapGenerateJob?.cancel()
+        }
+    }
+
+    fun generateQRCode(input: String): Flow<Bitmap> = flow {
+        while (currentCoroutineContext().isActive) {
+            val encodeJson = mapOf(
+                "registeredID" to input,
+                "timeStamp" to System.currentTimeMillis().toString()
+            )
+
+            val jsonInput = Json.encodeToString(encodeJson)
+
+            emit(
+                generateStyledQr(
                     content = jsonInput,
                     size = 700,
                     marginModules = 1,
@@ -108,34 +127,29 @@ class MainEventVM @Inject constructor(
                     foregroundEndColor = Color.BLACK,
                     backgroundTransparent = true,
                     roundModuleFactor = 0.92f,
-                    logo = null, // optional: add logo bitmap if needed
+                    logo = null,
                     logoScale = 0.18f
                 )
+            )
 
-                trySend(bitmap)
-                delay(3000)
-            }
-        }
-
-        awaitClose {
-
+            delay(3000)
         }
     }
 
-    fun saveBitmap(bitmap: Bitmap?){
+    fun saveBitmap(bitmap: Bitmap?) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 bitmap?.let {
-                    saveBitmapToMediaStore(mContext, it, )
+                    saveBitmapToMediaStore(mContext, it)
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
 
             }
         }
     }
 
 
-    fun clearState(){
+    fun clearState() {
         _uiState.value = MainEventVMState.Loading
     }
 }

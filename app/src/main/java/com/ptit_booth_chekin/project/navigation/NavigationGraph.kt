@@ -223,7 +223,7 @@ fun NavigationGraph(
                     },
                     viewModel = viewModel,
                     onCheckIn = {
-                        navController.navigate(Routes.CheckInQR.createRoute())
+                        navController.navigate(Routes.CheckInQR.createRoute(""))
                         {
                             launchSingleTop = true
                             restoreState = false
@@ -296,10 +296,12 @@ fun NavigationGraph(
                     navController.getBackStackEntry("home")
                 }
                 val viewModel: MainEventVM = hiltViewModel(parentEntry)
+                val eventID = entry.arguments?.getString(Routes.EVENT_ID)
                 ScreenCheckInQR(
                     navBack = {
                         navController.popBackStack()
                     },
+                    eventID = if(eventID?.isNotBlank() == true) eventID else null,
                     viewModel = viewModel // Pass the shared ViewModel
                 )
             }
@@ -560,6 +562,9 @@ fun NavigationGraph(
                 }) {
                 appState.setVisibleBottomNav(true)
                 RegisteredEventScreenStateful(
+                    onCheckIn = {
+                        navController.navigate(Routes.CheckInQR.createRoute(it))
+                    },
                     navigateToEventDetail = {
                         navController.navigate(Routes.EventDetail.createRoute(it))
                     }
