@@ -1,5 +1,7 @@
 package com.ptit_booth_chekin.project.ui.screen.home.event
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,8 +19,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +65,8 @@ import com.ptit_booth_chekin.project.ui.screen.home.event.components.InfoRowMain
 import com.ptit_booth_chekin.project.ui.screen.home.event.components.RegistrationCta
 import com.ptit_booth_chekin.project.ui.screen.home.event.components.RegistrationHoldingCta
 import com.ptit_booth_chekin.project.ui.screen.home.event.components.RegistrationHoldingNotRegistered
+import com.ptit_booth_chekin.project.ui.screen.home.event.components.SocialBTS
+import com.ptit_booth_chekin.project.ui.screen.home.event.components.SocialPlatform
 import com.ptit_booth_chekin.project.ui.screen.home.event.components.SpeakerListRow
 import com.ptit_booth_chekin.project.ui.screen.home.event.models.OrganizerUIModel
 import com.ptit_booth_chekin.project.ui.theme.JosefinSans
@@ -149,6 +158,7 @@ fun MainEventScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainEventDetailScreen(
     modifier: Modifier,
@@ -175,7 +185,11 @@ private fun MainEventDetailScreen(
     val isEventOnGoing by remember {
         derivedStateOf { secondsLeft in eventStart..eventEnd }
     }
-
+    var showSocialBottomSheetDialog by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         while (!isEventOnGoing && secondsLeft.isBefore(eventStart)) {
@@ -195,7 +209,10 @@ private fun MainEventDetailScreen(
             eventThumbnail = event.thumbnail
                 ?: "https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg?cs=srgb&dl=pexels-eberhardgross-1421903.jpg&fm=jpg",
             navigateBack = navigateBack,
-            onResourceClick = onResourceClick
+            onResourceClick = onResourceClick,
+            onSocialClick = {
+                showSocialBottomSheetDialog = true
+            }
         )
 
         MainEventContent(
@@ -222,7 +239,7 @@ private fun MainEventDetailScreen(
                 )
             )
         } else {
-            if(event.isRegistered){
+            if (event.isRegistered) {
                 RegistrationHoldingCta(
                     modifier = Modifier.fillMaxWidth(),
                     isMapAvail = event.maps != null,
@@ -236,10 +253,38 @@ private fun MainEventDetailScreen(
                         onScheduleClick()
                     },
                 )
-            }else{
+            } else {
                 RegistrationHoldingNotRegistered()
             }
 
+        }
+    }
+
+    if (showSocialBottomSheetDialog) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showSocialBottomSheetDialog = false
+            },
+            sheetState = sheetState
+        ) {
+            SocialBTS(
+                listSocial = event.socialLinks.mapNotNull { socialLinks ->
+                    val urlLinks = socialLinks.url
+                    val platForm =
+                        SocialPlatform.entries.firstOrNull { socialLinks.platform.equals(it.socialName, true) } ?: SocialPlatform.OTHER
+                    if (urlLinks != null) {
+                        urlLinks to platForm
+                    } else {
+                        null
+                    }
+                },
+                onClick = {
+                    Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse(it)
+                        context.startActivity(this)
+                    }
+                }
+            )
         }
     }
 }
@@ -332,6 +377,7 @@ fun MainEventContent(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(R.drawable.ic_clock),
+                colorFilter = ColorFilter.tint(Color.Black),
                 contentDescription = "Time",
                 modifier = Modifier.size(16.dp),
 
@@ -349,6 +395,7 @@ fun MainEventContent(
             Image(
                 painter = painterResource(R.drawable.ic_clock),
                 contentDescription = "Time",
+                colorFilter = ColorFilter.tint(Color.Black),
                 modifier = Modifier.size(16.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -366,7 +413,7 @@ fun MainEventContent(
             icon = R.drawable.ic_location,
             text = event.location!!
         )
-        Spacer(modifier = Modifier.height(46.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = stringResource(R.string.description),
@@ -391,7 +438,7 @@ fun MainEventContent(
                         color = Color.White,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    .padding(vertical = 40.dp, horizontal = 30.dp)
+                    .padding(vertical = 28.dp, horizontal = 24.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -400,7 +447,9 @@ fun MainEventContent(
                         model = organizerData.avatar,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(42.dp).clip(CircleShape),
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(16.dp)),
                         placeholder = painterResource(R.drawable.img_loading)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -434,7 +483,7 @@ fun MainEventContent(
                 data = speak,
                 onSpeakerClick = onSpeakerClick
             )
-        }else{
+        } else {
             Text(
                 text = "Không có diễn giả trong sự kiện này",
                 modifier = Modifier.fillMaxWidth(),
@@ -478,6 +527,7 @@ fun EventHeader(
     isEventOnGoing: Boolean = true,
     eventThumbnail: String, // should be URL
     onResourceClick: () -> Unit = {},
+    onSocialClick: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
     Box(
@@ -507,7 +557,9 @@ fun EventHeader(
                 modifier = Modifier,
                 isEventOnGoing = isEventOnGoing,
                 navigateBack = navigateBack,
-                onMoreClick = {},
+                onMoreClick = {
+                    onSocialClick()
+                },
                 onResourceClick = onResourceClick
             )
 

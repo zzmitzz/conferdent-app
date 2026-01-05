@@ -73,7 +73,8 @@ fun ComingNearByEventComponent(
                 color = Color.Black,
                 fontFamily = JosefinSans,
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 24.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
         if(eventCardInformationUIList.isEmpty()){
@@ -81,8 +82,7 @@ fun ComingNearByEventComponent(
                 text = "Không có sự kiện nào xung quanh bạn",
                 color = Color.Black,
                 fontFamily = JosefinSans,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

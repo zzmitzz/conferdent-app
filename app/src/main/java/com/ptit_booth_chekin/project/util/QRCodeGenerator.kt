@@ -13,84 +13,134 @@ fun generateStyledQr(
     foregroundStartColor: Int = Color.parseColor("#333333"),
     foregroundEndColor: Int = Color.parseColor("#111111"),
     backgroundTransparent: Boolean = true,
-    roundModuleFactor: Float = 0.9f,              // 0.9 -> circles nearly fill cell
+    moduleRoundFactor: Float = 0.35f,     // subtle rounding (data modules)           // 0.9 -> circles nearly fill cell
     logo: Bitmap? = null,                         // optional logo to overlay
     logoScale: Float = 0.20f                      // logo covers 20% of QR width
 ): Bitmap {
-    // 1) ZXing hints
     val hints = hashMapOf<EncodeHintType, Any>().apply {
-        put(EncodeHintType.MARGIN, marginModules) // controls quiet zone
+        put(EncodeHintType.MARGIN, marginModules)
         put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H)
-        // optionally set CHARACTER_SET if needed:
-        // put(EncodeHintType.CHARACTER_SET, "UTF-8")
     }
 
-    // 2) create bit matrix (request size x size)
-    val bitMatrix = try {
-        MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, size, size, hints)
-    } catch (e: Exception) {
-        throw RuntimeException("QR encode failed", e)
-    }
+    val bitMatrix = MultiFormatWriter()
+        .encode(content, BarcodeFormat.QR_CODE, size, size, hints)
 
-    val matrixWidth = bitMatrix.width
-    val matrixHeight = bitMatrix.height
+    val matrixSize = bitMatrix.width
+    val cell = size / matrixSize.toFloat()
+    val actualSize = cell * matrixSize
+    val offset = (size - actualSize) / 2f
 
-    // 3) compute module (cell) size in pixels and offsets for centering
-    val cellSize = size / matrixWidth.toFloat()           // float to handle rounding
-    val actualSize = (cellSize * matrixWidth).toInt()
-    val offset = ((size - actualSize) / 2f)
-
-    // 4) prepare bitmap & canvas
-    val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bmp)
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
     canvas.drawColor(if (backgroundTransparent) Color.TRANSPARENT else Color.WHITE)
 
-    // 5) paint for modules (with gradient if provided)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    // create gradient shader spanning the whole QR area
-    val shader = LinearGradient(
-        0f, 0f, size.toFloat(), size.toFloat(),
-        foregroundStartColor, foregroundEndColor,
-        Shader.TileMode.CLAMP
-    )
-    paint.shader = shader
-    paint.style = Paint.Style.FILL
+    val dataPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        shader = LinearGradient(
+            0f, 0f, size.toFloat(), size.toFloat(),
+            foregroundStartColor,
+            foregroundEndColor,
+            Shader.TileMode.CLAMP
+        )
+        style = Paint.Style.FILL
+    }
 
-    // 6) draw each module as rounded circle (soft)
-    val radius = (cellSize * 0.5f) * roundModuleFactor // circle radius inside module
-    for (row in 0 until matrixHeight) {
-        for (col in 0 until matrixWidth) {
-            if (bitMatrix.get(col, row)) {
-                val cx = offset + col * cellSize + cellSize / 2f
-                val cy = offset + row * cellSize + cellSize / 2f
-                canvas.drawCircle(cx, cy, radius, paint)
+    val finderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = foregroundEndColor
+        style = Paint.Style.FILL
+    }
+
+    fun isFinder(col: Int, row: Int): Boolean {
+        val size = 7
+        return (col < size && row < size) ||
+                (col >= matrixSize - size && row < size) ||
+                (col < size && row >= matrixSize - size)
+    }
+
+    // draw modules
+    for (row in 0 until matrixSize) {
+        for (col in 0 until matrixSize) {
+            if (!bitMatrix.get(col, row)) continue
+
+            val left = offset + col * cell
+            val top = offset + row * cell
+            val rect = RectF(left, top, left + cell, top + cell)
+
+            if (isFinder(col, row)) {
+                canvas.drawRect(rect, finderPaint)
+            } else {
+                val r = cell * moduleRoundFactor
+                canvas.drawRoundRect(rect, r, r, dataPaint)
             }
         }
     }
 
-    // 7) optional logo overlay (center)
-    logo?.let { logoBmp ->
-        val scale = (size * logoScale / logoBmp.width.toFloat()).coerceAtMost(1f)
-        val logoW = (logoBmp.width * scale).toInt()
-        val logoH = (logoBmp.height * scale).toInt()
-        val left = (size - logoW) / 2f
-        val top = (size - logoH) / 2f
+    // draw finder inner eyes
+    fun drawFinderEye(cx: Float, cy: Float) {
+        val outer = cell * 7f
+        val inner = cell * 3f
 
-        // Draw a white rounded background behind logo for scan safety
-        val bgPadding = (logoW * 0.12f).toInt()
-        val bgRect = RectF(left - bgPadding, top - bgPadding, left + logoW + bgPadding, top + logoH + bgPadding)
-        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val outerRect = RectF(
+            cx - outer / 2,
+            cy - outer / 2,
+            cx + outer / 2,
+            cy + outer / 2
+        )
+
+        val innerRect = RectF(
+            cx - inner / 2,
+            cy - inner / 2,
+            cx + inner / 2,
+            cy + inner / 2
+        )
+
+        canvas.drawRoundRect(outerRect, cell, cell, finderPaint)
+
+        val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            style = Paint.Style.FILL
-            // small shadow could be added if desired (requires setShadowLayer and hardware/software layer adjustments)
         }
-        canvas.drawRoundRect(bgRect, 12f, 12f, bgPaint)
+        canvas.drawRoundRect(
+            RectF(
+                innerRect.left - cell,
+                innerRect.top - cell,
+                innerRect.right + cell,
+                innerRect.bottom + cell
+            ),
+            cell / 2,
+            cell / 2,
+            whitePaint
+        )
 
-        // draw the scaled logo
-        val src = Rect(0, 0, logoBmp.width, logoBmp.height)
-        val dst = RectF(left, top, left + logoW, top + logoH)
-        canvas.drawBitmap(logoBmp, src, dst, null)
+        canvas.drawRoundRect(innerRect, cell / 2, cell / 2, finderPaint)
     }
 
-    return bmp
+    drawFinderEye(offset + cell * 3.5f, offset + cell * 3.5f)
+    drawFinderEye(offset + actualSize - cell * 3.5f, offset + cell * 3.5f)
+    drawFinderEye(offset + cell * 3.5f, offset + actualSize - cell * 3.5f)
+
+    // logo overlay
+    logo?.let { bmp ->
+        val scale = (size * logoScale / bmp.width).coerceAtMost(1f)
+        val w = bmp.width * scale
+        val h = bmp.height * scale
+
+        val left = (size - w) / 2f
+        val top = (size - h) / 2f
+
+        val bgPad = w * 0.18f
+        val bgRect = RectF(
+            left - bgPad,
+            top - bgPad,
+            left + w + bgPad,
+            top + h + bgPad
+        )
+
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+        }
+
+        canvas.drawRoundRect(bgRect, cell, cell, bgPaint)
+        canvas.drawBitmap(bmp, null, RectF(left, top, left + w, top + h), null)
+    }
+
+    return bitmap
 }

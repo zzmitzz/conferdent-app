@@ -126,7 +126,6 @@ class MainEventVM @Inject constructor(
                     foregroundStartColor = Color.BLACK,
                     foregroundEndColor = Color.BLACK,
                     backgroundTransparent = true,
-                    roundModuleFactor = 0.92f,
                     logo = null,
                     logoScale = 0.18f
                 )

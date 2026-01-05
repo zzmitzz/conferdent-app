@@ -40,6 +40,21 @@ data class EventSpeakers(
 )
 
 @Serializable
+data class SocialLinks (
+
+    @SerialName("id"         ) var id        : Int?    = null,
+    @SerialName("event_id"   ) var eventId   : String? = null,
+    @SerialName("platform"   ) var platform  : String? = null,
+    @SerialName("url"        ) var url       : String? = null,
+    @SerialName("label"      ) var label     : String? = null,
+    @SerialName("position"   ) var position  : Int?    = null,
+    @SerialName("created_at" ) var createdAt : String? = null,
+    @SerialName("updated_at" ) var updatedAt : String? = null
+
+)
+
+
+@Serializable
 data class EventDetail(
     @SerialName("_id") val Id: String? = null,
     @SerialName("organizer_id") val organizerId: String? = null,
@@ -66,7 +81,8 @@ data class EventDetail(
     @SerialName("speakers") val speakers: List<EventSpeakers> = emptyList(),
     @SerialName("maps") val maps: String? = null,
     @SerialName("distance") val distance: Double? = null,
-    @SerialName("organizer_name") val organizerName: String? = null
+    @SerialName("organizer_name") val organizerName: String? = null,
+    @SerialName("social_links" ) var socialLinks : List<SocialLinks> = listOf()
     )
 
 @Serializable

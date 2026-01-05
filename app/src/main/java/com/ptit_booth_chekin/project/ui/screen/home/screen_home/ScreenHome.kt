@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -84,6 +85,8 @@ fun ScreenHome(
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
     var city by remember { mutableStateOf<String?>(null) }
     var province by remember { mutableStateOf<String?>(null) }
+    var mLatitude by remember { mutableStateOf<Double?>(null) }
+    var mLongitude by remember { mutableStateOf<Double?>(null) }
 
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -94,12 +97,16 @@ fun ScreenHome(
                     val address = getAddressFromLatLng(context, lat, lon)
                     city = address?.subAdminArea
                     province = address?.thoroughfare
-                    viewModel.updateNearbyEvents(lat, lon)
+                    mLatitude = lat
+                    mLongitude = lon
                 }
             }
         }
 
-    LaunchedEffect(city, province) {
+    LaunchedEffect(mLatitude, mLongitude) {
+        if(mLatitude != null && mLongitude != null){
+            viewModel.updateNearbyEvents(mLatitude!!, mLongitude!!)
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -216,8 +223,10 @@ fun ScreenStateless(
         Spacer(modifier = Modifier.height(32.dp))
         Box(
             modifier = Modifier
-                .height(320.dp)
-                .fillMaxWidth(),
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+            ,
         ) {
             this@Column.AnimatedVisibility(
                 visible = eventState is ScreenHomeEvent.LoadEventSuccess, // Visibiltiy changes from false to true
@@ -227,7 +236,7 @@ fun ScreenStateless(
                 val successState = eventState as? ScreenHomeEvent.LoadEventSuccess
                 if (successState != null) {
                     ComingNearByEventComponent(
-                        eventCardInformationUIList = successState.eventCardInformationUIList
+                        eventCardInformationUIList = successState.nearbyEventCardInformationUIList
                     ) {
                         onNavEventDetail(it)
                     }
