@@ -198,35 +198,44 @@ private fun MainEventDetailScreen(
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        EventHeader(
-            modifier = Modifier.fillMaxWidth(),
-            startTime = eventStart,
-            endTime = eventEnd,
-            isEventOnGoing = isEventOnGoing,
-            eventThumbnail = event.thumbnail
-                ?: "https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg?cs=srgb&dl=pexels-eberhardgross-1421903.jpg&fm=jpg",
-            navigateBack = navigateBack,
-            onResourceClick = onResourceClick,
-            onSocialClick = {
-                showSocialBottomSheetDialog = true
-            }
-        )
 
-        MainEventContent(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            speak = speakerList,
-            organizerData = organizerData,
-            event = event,
-            onSpeakerClick = onSpeakerClick
-        )
+
+    Box(
+        Modifier.fillMaxSize()
+    ){
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            EventHeader(
+                modifier = Modifier.fillMaxWidth(),
+                startTime = eventStart,
+                endTime = eventEnd,
+                isEventOnGoing = isEventOnGoing,
+                eventThumbnail = event.thumbnail
+                    ?: "https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg?cs=srgb&dl=pexels-eberhardgross-1421903.jpg&fm=jpg",
+                navigateBack = navigateBack,
+                onResourceClick = onResourceClick,
+                onSocialClick = {
+                    showSocialBottomSheetDialog = true
+                }
+            )
+            MainEventContent(
+                modifier = Modifier
+                    .fillMaxSize(),
+                speak = speakerList,
+                organizerData = organizerData,
+                event = event,
+                onSpeakerClick = onSpeakerClick
+            )
+            Spacer(Modifier.height(100.dp))
+        }
+
         if (!isEventOnGoing) {
             RegistrationCta(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
                 onButtonClick = {
                     navigateRegister()
                 },
@@ -241,7 +250,7 @@ private fun MainEventDetailScreen(
         } else {
             if (event.isRegistered) {
                 RegistrationHoldingCta(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
                     isMapAvail = event.maps != null,
                     onCheckIn = {
                         onCheckIn()
@@ -271,7 +280,12 @@ private fun MainEventDetailScreen(
                 listSocial = event.socialLinks.mapNotNull { socialLinks ->
                     val urlLinks = socialLinks.url
                     val platForm =
-                        SocialPlatform.entries.firstOrNull { socialLinks.platform.equals(it.socialName, true) } ?: SocialPlatform.OTHER
+                        SocialPlatform.entries.firstOrNull {
+                            socialLinks.platform.equals(
+                                it.socialName,
+                                true
+                            )
+                        } ?: SocialPlatform.OTHER
                     if (urlLinks != null) {
                         urlLinks to platForm
                     } else {
@@ -334,8 +348,7 @@ fun MainEventContent(
         modifier = modifier
             .fillMaxSize()
             .background(color = Color("#ECECEE".toColorInt()))
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
         Box(

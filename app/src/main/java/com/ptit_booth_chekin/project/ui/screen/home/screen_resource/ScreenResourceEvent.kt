@@ -191,7 +191,7 @@ fun ScreenResourceEvent(
 }
 
 // Open resource in external app based on file type
-private fun openResource(context: Context, document: DocumentItem) {
+fun openResource(context: Context, document: DocumentItem) {
     try {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             when (document.fileType) {
@@ -231,7 +231,7 @@ private fun openResource(context: Context, document: DocumentItem) {
 }
 
 // Download resource to external storage via DownloadManager
-private fun downloadResource(context: Context, document: DocumentItem) {
+fun downloadResource(context: Context, document: DocumentItem) {
     try {
         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val uri = Uri.parse(document.urlSource)

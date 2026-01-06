@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
@@ -23,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -134,23 +137,25 @@ fun BottomSheetSessionDetail(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row() {
-            data.speaker.forEachIndexed { index, speaker ->
-                SpeakerItem(speaker = speaker)
+        LazyRow() {
+            items(data.speaker.size){index ->
+                SpeakerItem(speaker = data.speaker[index], modifier = Modifier.width(120.dp))
                 if (index < data.speaker.size - 1) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
             }
         }
+
 
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
-private fun SpeakerItem(speaker: SpeakerSession) {
+private fun SpeakerItem(speaker: SpeakerSession, modifier: Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth()
     ) {
         AsyncImage(
             model = speaker.avatarLink,
@@ -171,12 +176,18 @@ private fun SpeakerItem(speaker: SpeakerSession) {
                 text = "Nguyễn Văn A",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "CEO Công ty\nABC Tech",
                 fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
                 color = Color(0xFF6B6B6B),
                 lineHeight = 18.sp
             )
