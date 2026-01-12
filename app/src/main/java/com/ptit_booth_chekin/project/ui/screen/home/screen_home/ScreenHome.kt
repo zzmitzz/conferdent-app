@@ -59,6 +59,7 @@ import com.ptit_booth_chekin.project.ui.screen.home.screen_home.components.Locat
 import com.ptit_booth_chekin.project.ui.theme.JosefinSans
 import com.ptit_booth_chekin.project.utils.getAddressFromLatLng
 import com.ptit_booth_chekin.project.utils.getCurrentLocation
+import kotlinx.coroutines.delay
 
 
 @Preview
@@ -99,17 +100,33 @@ fun ScreenHome(
                     province = address?.thoroughfare
                     mLatitude = lat
                     mLongitude = lon
+                    if(mLatitude != null && mLongitude != null){
+                        viewModel.updateNearbyEvents(mLatitude!!, mLongitude!!)
+                    }
                 }
             }
         }
 
-    LaunchedEffect(mLatitude, mLongitude) {
-        if(mLatitude != null && mLongitude != null){
-            viewModel.updateNearbyEvents(mLatitude!!, mLongitude!!)
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        try {
+//            getCurrentLocation(fusedLocationClient) { lat, lon ->
+//                val address = getAddressFromLatLng(context, lat, lon)
+//                city = address?.subAdminArea
+//                province = address?.thoroughfare
+//                mLatitude = lat
+//                mLongitude = lon
+//                if(mLatitude != null && mLongitude != null){
+//                    viewModel.updateNearbyEvents(mLatitude!!, mLongitude!!)
+//                }
+//            }
+//        }catch (e: Exception){
+//
+//        }
+//    }
+
 
     LaunchedEffect(Unit) {
+        delay(2000)
         locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
     ScreenStateless(

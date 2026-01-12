@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -145,6 +146,8 @@ fun CalenderComponent(
                         )
                         Box(
                             modifier = Modifier
+                                .width(40.dp)
+                                .height(70.dp)
                                 .padding(vertical = 8.dp)
                                 .background(
                                     color = if (item.passedDate) {
@@ -159,8 +162,9 @@ fun CalenderComponent(
                                     shape = RoundedCornerShape(10.dp)
                                 ).padding(
                                     vertical = 16.dp,
-                                    horizontal = 14.dp
-                                )
+                                    horizontal = if (item.date.dayOfMonth >= 10) 10.dp else 14.dp
+                                ),
+                            contentAlignment = Alignment.Center
                         ){
                             Text(
                                 text = item.date.dayOfMonth.toString(),
@@ -172,7 +176,8 @@ fun CalenderComponent(
                                     } else {
                                         Color.Black
                                     }
-                                }
+                                },
+                                fontSize = 14.sp,
                             )
                         }
                         if(item.sessionAvailable){

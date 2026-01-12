@@ -1,5 +1,6 @@
 package com.ptit_booth_chekin.project.models
 
+import com.ptit_booth_chekin.project.data.event.models.ResourceItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,7 +22,8 @@ data class SessionsModel(
     @SerialName("registered_count" ) var registeredCount : Int?              = null,
     @SerialName("waitlist_count"   ) var waitlistCount   : Int?              = null,
     @SerialName("available_spots"  ) var availableSpots  : Int?              = null,
-    @SerialName("speakers") var speakers: ArrayList<SpeakersModel> = arrayListOf()
+    @SerialName("speakers") var speakers: ArrayList<SpeakersModel> = arrayListOf(),
+    @SerialName("resource") val resource: ArrayList<ResourceItem> = arrayListOf()
 )
 
 @Serializable

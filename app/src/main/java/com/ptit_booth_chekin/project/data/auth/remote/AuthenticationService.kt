@@ -2,6 +2,7 @@ package com.ptit_booth_chekin.project.data.auth.remote
 
 import com.ptit_booth_chekin.project.data.common.BaseResponse
 import com.ptit_booth_chekin.project.data.common.BaseResponseAuthentication
+import com.ptit_booth_chekin.project.data.common.BaseResponseState
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -51,7 +52,7 @@ interface AuthenticationService {
     @POST("/registrations/auth/register")
     suspend fun register(
         @Body registerRequest: RegisterRequest
-    ): Response<BaseResponse<RegisterResponseDetail>>
+    ): Response<BaseResponseState>
 
 
 

@@ -81,7 +81,7 @@ fun ScreenChatStateless(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
-                .padding(vertical = 24.dp)
+                .padding(vertical = 8.dp)
         ){
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

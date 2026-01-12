@@ -41,10 +41,10 @@ class AuthRepository @Inject constructor(
         email: String,
         password: String,
         fullName: String
-    ): APIResult<RegisterResponseDetail> {
+    ): APIResult<String> {
         val response = authService.register(RegisterRequest(email, password, fullName))
-        return if (response.isSuccessful && response.body()?.data != null) {
-            APIResult.Success(response.body()!!.data)
+        return if (response.isSuccessful) {
+            APIResult.Success("Register successfully")
         }else{
             APIResult.Error(response.message())
         }

@@ -1,5 +1,10 @@
 package com.ptit_booth_chekin.project.ui.screen.home.screen_home.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ptit_booth_chekin.project.ui.screen.home.screen_home.ScreenHomeEvent
 import com.ptit_booth_chekin.project.ui.theme.JosefinSans
 
 @Composable
@@ -77,16 +83,11 @@ fun ComingNearByEventComponent(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-        if(eventCardInformationUIList.isEmpty()){
-            Text(
-                text = "Không có sự kiện nào xung quanh bạn",
-                color = Color.Black,
-                fontFamily = JosefinSans,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }else{
+        this@Column.AnimatedVisibility(
+            visible = eventCardInformationUIList.isNotEmpty(),
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
             LazyRow() {
                 items(eventCardInformationUIList.size) {
                     Spacer(modifier = Modifier.width(8.dp))
@@ -101,6 +102,16 @@ fun ComingNearByEventComponent(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
+        }
+        if(eventCardInformationUIList.isEmpty()){
+            Text(
+                text = "Không có sự kiện nào xung quanh bạn",
+                color = Color.Black,
+                fontFamily = JosefinSans,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

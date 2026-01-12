@@ -1,5 +1,6 @@
 package com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models
 
+import com.ptit_booth_chekin.project.ui.screen.home.screen_resource.DocumentItem
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -24,5 +25,6 @@ data class SessionUIWrap(
     val description: String,
     val place: String,
     val speaker: List<SpeakerSession> = emptyList(),
-    val isNotificationOn: Boolean = false
+    val isNotificationOn: Boolean = false,
+    val resources: List<DocumentItem> = emptyList()
 )

@@ -9,6 +9,7 @@ import com.ptit_booth_chekin.project.navigation.Routes.Companion.EVENT_ID
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SessionTypeState
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SessionUIWrap
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SpeakerSession
+import com.ptit_booth_chekin.project.ui.screen.home.screen_resource.DocumentItem
 import com.ptit_booth_chekin.project.utils.parseTimeFromServer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -73,7 +74,8 @@ class ConferenceSessionVM @Inject constructor(
                                 id.toString(), avatar
                             )
                         },
-                        isNotificationOn = false
+                        isNotificationOn = false,
+                        resources = it.resource.map { DocumentItem.fromResourceItem(it) }
 
                     )
                 }

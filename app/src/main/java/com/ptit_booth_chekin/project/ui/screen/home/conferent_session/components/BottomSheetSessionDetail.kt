@@ -3,16 +3,23 @@ package com.ptit_booth_chekin.project.ui.screen.home.conferent_session.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -22,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +43,9 @@ import com.ptit_booth_chekin.project.R
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SessionTypeState
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SessionUIWrap
 import com.ptit_booth_chekin.project.ui.screen.home.conferent_session.models.SpeakerSession
+import com.ptit_booth_chekin.project.ui.screen.home.screen_resource.DocumentListItem
+import com.ptit_booth_chekin.project.ui.screen.home.screen_resource.downloadResource
+import com.ptit_booth_chekin.project.ui.screen.home.screen_resource.openResource
 import com.ptit_booth_chekin.project.utils.DateTimeFormatPattern
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -43,9 +54,15 @@ import java.time.format.DateTimeFormatter
 fun BottomSheetSessionDetail(
     data: SessionUIWrap
 ) {
+
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(max = 500.dp)
+            .verticalScroll(rememberScrollState())
             .background(Color.White)
             .padding(24.dp)
     ) {
@@ -59,16 +76,13 @@ fun BottomSheetSessionDetail(
         Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color(0xFFE0E0E0)
+            modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFE0E0E0)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_clock),
@@ -82,17 +96,14 @@ fun BottomSheetSessionDetail(
                     data.endTime.format(
                         DateTimeFormatter.ofPattern("HH:mm, 'ngày' dd/MM/yyyy")
                     )
-                }",
-                fontSize = 14.sp,
-                color = Color(0xFF6B6B6B)
+                }", fontSize = 14.sp, color = Color(0xFF6B6B6B)
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_loc_black),
@@ -102,43 +113,34 @@ fun BottomSheetSessionDetail(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = data.place,
-                fontSize = 14.sp,
-                color = Color(0xFF6B6B6B)
+                text = data.place, fontSize = 14.sp, color = Color(0xFF6B6B6B)
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Mô tả",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            text = "Mô tả", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = data.description,
-            fontSize = 14.sp,
-            color = Color(0xFF6B6B6B),
-            lineHeight = 20.sp
+            text = data.description, fontSize = 14.sp, color = Color(0xFF6B6B6B), lineHeight = 20.sp
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Diễn giả",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            text = "Diễn giả", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyRow() {
-            items(data.speaker.size){index ->
+        LazyRow(
+            modifier = Modifier
+        ) {
+            items(data.speaker.size) { index ->
                 SpeakerItem(speaker = data.speaker[index], modifier = Modifier.width(120.dp))
                 if (index < data.speaker.size - 1) {
                     Spacer(modifier = Modifier.width(16.dp))
@@ -148,25 +150,57 @@ fun BottomSheetSessionDetail(
 
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Tài liệu", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (data.resources.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentPadding = PaddingValues(vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(data.resources) { document ->
+                    DocumentListItem(document = document, onOpenClicked = { doc ->
+                        openResource(context, doc)
+                    }, onDownloadClicked = {
+                        downloadResource(context, it)
+                    })
+                }
+            }
+        } else {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = "Không có tài liệu",
+                color = Color.Gray,
+                fontSize = 16.sp
+            )
+        }
+
     }
 }
 
 @Composable
 private fun SpeakerItem(speaker: SpeakerSession, modifier: Modifier) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxWidth()
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()
     ) {
         AsyncImage(
             model = speaker.avatarLink,
             contentDescription = null,
             modifier = Modifier
                 .size(64.dp)
-                .clip(CircleShape),
+                .clip(RoundedCornerShape(24.dp)),
             placeholder = painterResource(R.drawable.img_loading)
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Column(
 
@@ -174,7 +208,7 @@ private fun SpeakerItem(speaker: SpeakerSession, modifier: Modifier) {
         ) {
             Text(
                 text = "Nguyễn Văn A",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
@@ -183,7 +217,7 @@ private fun SpeakerItem(speaker: SpeakerSession, modifier: Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "CEO Công ty\nABC Tech",
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
@@ -211,8 +245,7 @@ private fun PreviewBottomSheetSessionDetail() {
                 SpeakerSession(
                     id = "1",
                     avatarLink = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/10f13510774061.560eadfde5b61.png"
-                ),
-                SpeakerSession(
+                ), SpeakerSession(
                     id = "2",
                     avatarLink = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/10f13510774061.560eadfde5b61.png"
                 )

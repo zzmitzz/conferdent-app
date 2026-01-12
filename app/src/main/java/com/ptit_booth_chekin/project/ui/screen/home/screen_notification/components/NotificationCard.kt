@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import com.ptit_booth_chekin.project.R
 import androidx.compose.foundation.Image
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.graphics.toColorInt
 
 @Composable
@@ -140,3 +141,4 @@ fun NotificationCard(
         }
     }
 }
+

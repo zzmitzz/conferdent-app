@@ -40,7 +40,7 @@ sealed class LoginScreenVMState {
 sealed class RegisterScreenVMState {
     object Initial : RegisterScreenVMState()
     object Loading : RegisterScreenVMState()
-    data class Success(val data: RegisterResponseDetail) : RegisterScreenVMState()
+    object Success : RegisterScreenVMState()
     data class ErrorInput(
         val name: String? = null,
         val email: String? = null,
@@ -125,11 +125,9 @@ class AuthenticationVM
                 )
                 return@launch
             }
-            val result = authRepository.doRegister(email, password, fullName)
-            when (result) {
+            when (val result = authRepository.doRegister(email, password, fullName)) {
                 is APIResult.Success -> {
-                    persistentStorage.saveKeySuspend(Constants.USER_TOKEN, result.data.accessToken)
-                    updateRegisterState(RegisterScreenVMState.Success(result.data))
+                    updateRegisterState(RegisterScreenVMState.Success)
                 }
 
                 is APIResult.Error -> {

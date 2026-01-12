@@ -263,7 +263,11 @@ private fun MainEventDetailScreen(
                     },
                 )
             } else {
-                RegistrationHoldingNotRegistered()
+                Box(
+                    modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)
+                ){
+                    RegistrationHoldingNotRegistered()
+                }
             }
 
         }
